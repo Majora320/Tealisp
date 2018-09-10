@@ -1,6 +1,5 @@
 package org.majora320.tealisp;
 
-import com.sun.istack.internal.Nullable;
 
 import java.io.IOException;
 import java.io.PushbackReader;
@@ -13,7 +12,15 @@ public class TokenStream {
         this.input = new PushbackReader(input);
     }
 
-    @Nullable
+    /**
+     * Tries to parse a token from the input stream. If it fails,
+     * throws LexException; if there are no tokens left, it returns
+     * null.
+     *
+     * @return A token when there are tokens left, otherwise null.
+     * @throws IOException
+     * @throws LexException
+     */
     public Token nextToken() throws IOException, LexException {
         int in = input.read();
 
