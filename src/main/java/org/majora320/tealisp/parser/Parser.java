@@ -1,0 +1,95 @@
+package org.majora320.tealisp.parser;
+
+import org.majora320.tealisp.lexer.LexException;
+import org.majora320.tealisp.lexer.Token;
+import org.majora320.tealisp.lexer.TokenStream;
+import org.majora320.tealisp.parser.util.CheckedBiConsumer;
+import org.majora320.tealisp.parser.util.CheckedBiFunction;
+
+import java.io.IOException;
+import java.io.Reader;
+import java.util.ArrayList;
+
+public class Parser {
+    public static AstNode.RootNode parse(Reader input) throws IOException, LexException, ParseException {
+        return parse(new TokenStream(input));
+    }
+
+    public static AstNode.RootNode parse(TokenStream tokens) throws IOException, LexException, ParseException {
+        AstNode.RootNode res = new AstNode.RootNode(new ArrayList<AstNode>());
+
+        Token token = tokens.nextToken();
+
+        while (token != null) {
+            res.children.add(parseNode(token, tokens));
+
+            token = tokens.nextToken();
+        }
+
+        return res;
+    }
+
+    private static AstNode parseNode(Token token, TokenStream tokens) throws ParseException, IOException, LexException {
+        if (token instanceof Token.LeftParen) {
+            return parseFunctionApplication(tokens);
+        } else if (token instanceof Token.RightParen) {
+            throw new ParseException("Extra right parenthesis.");
+        } else if (token instanceof Token.Integer) {
+            return new AstNode.Integer(((Token.Integer)token).value);
+        } else if (token instanceof Token.Name) {
+            return new AstNode.Name(((Token.Name)token).name);
+        } else if (token instanceof Token.SymbolMark) {
+            return parseSymbolOrList(tokens);
+        }
+
+        throw new ParseException("This should never happen. If it does, contact Majora320 immediately with error code 451");
+    }
+
+    private static AstNode parseSymbolOrList(TokenStream tokens) throws IOException, LexException, ParseException {
+        Token next = tokens.nextToken();
+
+        if (next instanceof Token.Name) {
+            return new AstNode.Name(((Token.Name)next).name);
+        } else if (next instanceof Token.LeftParen) {
+            return parseListElement(next, tokens);
+        } else {
+            throw new ParseException("Expected symbol or list, got something else after '");
+        }
+    }
+
+    private static AstNode.Primitive parseListElement(Token token, TokenStream tokens) throws IOException, LexException, ParseException {
+        if (token instanceof Token.Integer) {
+            return new AstNode.Integer(((Token.Integer)token).value);
+        } else if (token instanceof Token.Name) {
+            return new AstNode.Symbol(((Token.Name)token).name);
+        } else if (token instanceof Token.LeftParen) {
+            return mapReduceTokens(tokens,
+                    new AstNode.LispList(new ArrayList<>()),
+                    Parser::parseListElement, (node, list) -> list.children.add(node));
+        }
+
+        throw new ParseException("This should never happen. If it does, contact Majora320 immediately with error code 452");
+    }
+
+    private static AstNode parseFunctionApplication(TokenStream tokens) {
+        return null;
+    }
+
+    /**
+     * Iterates through tokens until a closing paren is found.
+     */
+    private static <T, N extends AstNode> T mapReduceTokens(
+            TokenStream tokens, T emptyT,
+            CheckedBiFunction<Token, TokenStream, N> map,
+            CheckedBiConsumer<N, T> reduce)
+            throws IOException, LexException, ParseException {
+        T res = emptyT;
+        Token token = tokens.nextToken();
+
+        while (!(token instanceof Token.RightParen)) {
+            reduce.accept(map.apply(token, tokens), res);
+        }
+
+        return res;
+    }
+}

@@ -1,4 +1,4 @@
-package org.majora320.tealisp;
+package org.majora320.tealisp.lexer;
 
 
 import java.io.IOException;
@@ -37,7 +37,7 @@ public class TokenStream {
             case ')': case ']': case '}':
                 return new Token.RightParen();
             case '\'':
-                return new Token.ListStartMark();
+                return new Token.SymbolMark();
             case '"':
                 throw new LexException("Strings not yet supported");
         }

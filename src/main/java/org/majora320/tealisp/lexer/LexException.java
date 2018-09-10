@@ -1,4 +1,4 @@
-package org.majora320.tealisp;
+package org.majora320.tealisp.lexer;
 
 public class LexException extends Exception {
     public LexException() {

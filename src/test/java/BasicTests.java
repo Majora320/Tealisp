@@ -1,8 +1,8 @@
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.majora320.tealisp.LexException;
-import org.majora320.tealisp.Token;
-import org.majora320.tealisp.TokenStream;
+import org.majora320.tealisp.lexer.LexException;
+import org.majora320.tealisp.lexer.Token;
+import org.majora320.tealisp.lexer.TokenStream;
 
 import java.io.IOException;
 import java.io.StringReader;

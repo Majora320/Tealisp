@@ -1,4 +1,4 @@
-package org.majora320.tealisp;
+package org.majora320.tealisp.lexer;
 
 public class Token {
     public static class LeftParen extends Token {
@@ -15,15 +15,15 @@ public class Token {
         }
     };
 
-    public static class ListStartMark extends Token {
+    public static class SymbolMark extends Token {
         @Override
         public String toString() {
-            return "ListStartMark";
+            return "SymbolMark";
         }
     };
 
     public static class Name extends Token {
-        String name;
+        public String name;
 
         public Name(String name) {
             this.name = name;
@@ -36,15 +36,15 @@ public class Token {
     };
 
     public static class Integer extends Token {
-        int i;
+        public int value;
 
-        public Integer(int i) {
-            this.i = i;
+        public Integer(int value) {
+            this.value = value;
         }
 
         @Override
         public String toString() {
-            return "Integer[" + i + "]";
+            return "Integer[" + value + "]";
         }
     }
 }
