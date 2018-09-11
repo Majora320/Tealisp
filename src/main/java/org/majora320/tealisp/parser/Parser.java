@@ -3,13 +3,13 @@ package org.majora320.tealisp.parser;
 import org.majora320.tealisp.lexer.LexException;
 import org.majora320.tealisp.lexer.Token;
 import org.majora320.tealisp.lexer.TokenStream;
-import org.majora320.tealisp.parser.util.CheckedBiConsumer;
 import org.majora320.tealisp.parser.util.CheckedBiFunction;
 
 import java.io.IOException;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BiConsumer;
 
 public class Parser {
     public static AstNode.RootNode parse(Reader input) throws IOException, LexException, ParseException {
@@ -111,7 +111,7 @@ public class Parser {
     private static <T, N extends AstNode> T mapReduceTokens(
             TokenStream tokens, T emptyT,
             CheckedBiFunction<Token, TokenStream, N> map,
-            CheckedBiConsumer<N, T> reduce)
+            BiConsumer<N, T> reduce)
             throws IOException, LexException, ParseException {
         T res = emptyT;
         Token token = tokens.nextToken();
