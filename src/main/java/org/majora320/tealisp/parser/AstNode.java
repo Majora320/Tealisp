@@ -12,20 +12,20 @@ public class AstNode {
     }
 
     public static class FunctionApplication extends AstNode {
-        public Name functionName;
+        public AstNode function;
         public List<AstNode> arguments;
 
-        public FunctionApplication(Name functionName, List<AstNode> arguments) {
-            this.functionName = functionName;
+        public FunctionApplication(AstNode function, List<AstNode> arguments) {
+            this.function = function;
             this.arguments = arguments;
         }
     }
 
     public static class Name extends AstNode {
-        public String name;
+        public String value;
 
-        public Name(String name) {
-            this.name = name;
+        public Name(String value) {
+            this.value = value;
         }
     }
 
@@ -42,10 +42,10 @@ public class AstNode {
     }
 
     public static class Symbol extends Primitive {
-        public String symbol;
+        public String value;
 
-        public Symbol(String symbol) {
-            this.symbol = symbol;
+        public Symbol(String value) {
+            this.value = value;
         }
     }
 

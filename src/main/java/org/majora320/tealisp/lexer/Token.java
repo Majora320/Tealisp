@@ -23,15 +23,15 @@ public class Token {
     };
 
     public static class Name extends Token {
-        public String name;
+        public String value;
 
         public Name(String name) {
-            this.name = name;
+            this.value = name;
         }
 
         @Override
         public String toString() {
-            return "Name[" + name + "]";
+            return "Name[" + value + "]";
         }
     };
 

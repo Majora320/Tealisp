@@ -9,6 +9,7 @@ import org.majora320.tealisp.parser.util.CheckedBiFunction;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.ArrayList;
+import java.util.List;
 
 public class Parser {
     public static AstNode.RootNode parse(Reader input) throws IOException, LexException, ParseException {
@@ -30,14 +31,15 @@ public class Parser {
     }
 
     private static AstNode parseNode(Token token, TokenStream tokens) throws ParseException, IOException, LexException {
+
         if (token instanceof Token.LeftParen) {
             return parseFunctionApplication(tokens);
         } else if (token instanceof Token.RightParen) {
             throw new ParseException("Extra right parenthesis.");
         } else if (token instanceof Token.Integer) {
-            return new AstNode.Integer(((Token.Integer)token).value);
+            return new AstNode.Integer(((Token.Integer) token).value);
         } else if (token instanceof Token.Name) {
-            return new AstNode.Name(((Token.Name)token).name);
+            return new AstNode.Name(((Token.Name) token).value);
         } else if (token instanceof Token.SymbolMark) {
             return parseSymbolOrList(tokens);
         }
@@ -49,7 +51,7 @@ public class Parser {
         Token next = tokens.nextToken();
 
         if (next instanceof Token.Name) {
-            return new AstNode.Name(((Token.Name)next).name);
+            return new AstNode.Symbol(((Token.Name) next).value);
         } else if (next instanceof Token.LeftParen) {
             return parseListElement(next, tokens);
         } else {
@@ -59,20 +61,48 @@ public class Parser {
 
     private static AstNode.Primitive parseListElement(Token token, TokenStream tokens) throws IOException, LexException, ParseException {
         if (token instanceof Token.Integer) {
-            return new AstNode.Integer(((Token.Integer)token).value);
+            return new AstNode.Integer(((Token.Integer) token).value);
         } else if (token instanceof Token.Name) {
-            return new AstNode.Symbol(((Token.Name)token).name);
+            return new AstNode.Symbol(((Token.Name) token).value);
         } else if (token instanceof Token.LeftParen) {
-            return mapReduceTokens(tokens,
+            return mapReduceTokens(
+                    tokens,
                     new AstNode.LispList(new ArrayList<>()),
-                    Parser::parseListElement, (node, list) -> list.children.add(node));
+                    Parser::parseListElement,
+                    (node, list) -> list.children.add(node)
+            );
+        } else if (token instanceof Token.SymbolMark) {
+            throw new ParseException("To put a symbol inside of a list, just use the name without the tick mark.");
+        } else if (token instanceof Token.RightParen) {
+            throw new ParseException("Extra right parenthesis.");
         }
 
         throw new ParseException("This should never happen. If it does, contact Majora320 immediately with error code 452");
     }
 
-    private static AstNode parseFunctionApplication(TokenStream tokens) {
-        return null;
+    private static AstNode.FunctionApplication parseFunctionApplication(TokenStream tokens) throws IOException, LexException, ParseException {
+        // Function
+        Token function = tokens.nextToken();
+        AstNode functionNode;
+
+        if (function instanceof Token.Name) {
+            functionNode = new AstNode.Name(((Token.Name) function).value);
+        } else if (function instanceof Token.LeftParen) {
+            functionNode = parseFunctionApplication(tokens);
+        } else if (function instanceof Token.RightParen) {
+            throw new ParseException("Extra right parenthesis.");
+        } else {
+            throw new ParseException("Expected function or expression evaluating to function, got something else.");
+        }
+
+        List<AstNode> arguments = mapReduceTokens(
+                tokens,
+                new ArrayList<>(),
+                Parser::parseNode,
+                (node, list) -> list.add(node)
+        );
+
+        return new AstNode.FunctionApplication(functionNode, arguments);
     }
 
     /**
@@ -88,6 +118,7 @@ public class Parser {
 
         while (!(token instanceof Token.RightParen)) {
             reduce.accept(map.apply(token, tokens), res);
+            token = tokens.nextToken();
         }
 
         return res;
