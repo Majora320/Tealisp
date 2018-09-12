@@ -13,10 +13,11 @@ import java.io.StringReader;
 class BasicTests {
     @Test
     void testLexer() {
-        String string = "(hello world 123 '(4 5 6) 'foo)";
+        String string = "(hello world 123 '(4 5 6) 'foo \"foo bar baz\")";
         TokenStream stream = new TokenStream(new StringReader(string));
 
         try {
+            //printTokenStream(stream);
             printSyntaxTree(Parser.parse(stream));
         } catch (IOException | LexException | ParseException e) {
             Assertions.fail(e);
@@ -44,12 +45,14 @@ class BasicTests {
             System.out.print(((AstNode.Name) node).value);
         } else if (node instanceof AstNode.Symbol) {
             System.out.print("'" + ((AstNode.Symbol) node).value);
-        } else if (node instanceof AstNode.LispList) {
+        } else if (node instanceof AstNode.String) {
+            System.out.print("\"" + ((AstNode.String) node).value + "\"");
+        } else if (node instanceof AstNode.List) {
             System.out.print("'(");
 
             boolean once = false;
 
-            for (AstNode child : ((AstNode.LispList) node).children) {
+            for (AstNode child : ((AstNode.List) node).children) {
                 if (once)
                     System.out.print(" ");
                 else

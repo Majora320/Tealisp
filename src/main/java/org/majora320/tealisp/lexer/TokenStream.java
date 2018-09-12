@@ -39,7 +39,7 @@ public class TokenStream {
             case '\'':
                 return new Token.SymbolMark();
             case '"':
-                throw new LexException("Strings not yet supported");
+                return parseString();
         }
 
         if (in >= '0' && in <= '9') {
@@ -78,5 +78,49 @@ public class TokenStream {
 
         input.unread(in);
         return new Token.Name(res.toString());
+    }
+
+    private Token parseString() throws IOException, LexException {
+        int in = input.read();
+        StringBuilder res = new StringBuilder();
+
+        while (in != '"') {
+            validateCharInString(in);
+
+            if (in == '\\') {
+                int next = input.read();
+                validateCharInString(in);
+
+                switch (next) {
+                    case '\\':
+                        res.append('\\');
+                        break;
+                    case 'n':
+                        res.append('\n');
+                        break;
+                    case 't':
+                        res.append('\t');
+                        break;
+                    case '"':
+                        res.append('"');
+                    default:
+                        throw new LexException("Invalid character '" + (char)next + "' after escape.");
+                }
+            } else {
+                res.append((char)in);
+            }
+
+            in = input.read();
+        }
+
+        return new Token.String(res.toString());
+    }
+
+    private void validateCharInString(int c) throws LexException {
+        if (c == -1)
+            throw new LexException("String missing closing quote.");
+
+        if (c == '\n')
+            throw new LexException("Newlines in strings are not supported except by \\n");
     }
 }

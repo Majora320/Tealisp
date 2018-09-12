@@ -8,7 +8,6 @@ import org.majora320.tealisp.parser.util.CheckedBiFunction;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.function.BiConsumer;
 
 public class Parser {
@@ -31,7 +30,6 @@ public class Parser {
     }
 
     private static AstNode parseNode(Token token, TokenStream tokens) throws ParseException, IOException, LexException {
-
         if (token instanceof Token.LeftParen) {
             return parseFunctionApplication(tokens);
         } else if (token instanceof Token.RightParen) {
@@ -40,6 +38,8 @@ public class Parser {
             return new AstNode.Integer(((Token.Integer) token).value);
         } else if (token instanceof Token.Name) {
             return new AstNode.Name(((Token.Name) token).value);
+        } else if (token instanceof Token.String) {
+            return new AstNode.String(((Token.String) token).value);
         } else if (token instanceof Token.SymbolMark) {
             return parseSymbolOrList(tokens);
         }
@@ -67,7 +67,7 @@ public class Parser {
         } else if (token instanceof Token.LeftParen) {
             return mapReduceTokens(
                     tokens,
-                    new AstNode.LispList(new ArrayList<>()),
+                    new AstNode.List(new ArrayList<>()),
                     Parser::parseListElement,
                     (node, list) -> list.children.add(node)
             );
@@ -95,7 +95,7 @@ public class Parser {
             throw new ParseException("Expected function or expression evaluating to function, got something else.");
         }
 
-        List<AstNode> arguments = mapReduceTokens(
+        java.util.List arguments = mapReduceTokens(
                 tokens,
                 new ArrayList<>(),
                 Parser::parseNode,
