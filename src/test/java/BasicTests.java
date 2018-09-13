@@ -13,7 +13,7 @@ import java.io.StringReader;
 class BasicTests {
     @Test
     void testLexer() {
-        String string = "(hello world 123 '(4 5 6) 'foo \"foo bar baz\")";
+        String string = "(hello world 123 '(4 5 6) 'foo \"foo bar baz\" #t #f)";
         TokenStream stream = new TokenStream(new StringReader(string));
 
         try {
@@ -47,6 +47,11 @@ class BasicTests {
             System.out.print("'" + ((AstNode.Symbol) node).value);
         } else if (node instanceof AstNode.String) {
             System.out.print("\"" + ((AstNode.String) node).value + "\"");
+        } else if (node instanceof AstNode.Boolean) {
+            if (((AstNode.Boolean) node).value)
+                System.out.print("#t");
+            else
+                System.out.print("#f");
         } else if (node instanceof AstNode.List) {
             System.out.print("'(");
 

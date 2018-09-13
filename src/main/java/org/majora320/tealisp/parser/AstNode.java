@@ -62,4 +62,12 @@ public class AstNode {
             this.value = value;
         }
     }
+
+    public static class Boolean extends Primitive {
+        public boolean value;
+
+        public Boolean(boolean value) {
+            this.value = value;
+        }
+    }
 }

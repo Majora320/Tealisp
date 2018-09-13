@@ -23,7 +23,7 @@ public class LispObject {
 
         @Override
         public java.lang.String toString() {
-            return value;
+            return "'" + value;
         }
     }
 
@@ -36,7 +36,23 @@ public class LispObject {
 
         @Override
         public java.lang.String toString() {
-            return value;
+            return "\"" + value + "\"";
+        }
+    }
+
+    public static class Boolean extends LispObject {
+        public boolean value;
+
+        public Boolean(boolean value) {
+            this.value = value;
+        }
+
+        @Override
+        public java.lang.String toString() {
+            if (value)
+                return "#t";
+            else
+                return "#f";
         }
     }
 

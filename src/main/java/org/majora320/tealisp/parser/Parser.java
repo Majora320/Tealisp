@@ -40,6 +40,8 @@ public class Parser {
             return new AstNode.Name(((Token.Name) token).value);
         } else if (token instanceof Token.String) {
             return new AstNode.String(((Token.String) token).value);
+        } else if (token instanceof Token.Boolean) {
+            return new AstNode.Boolean(((Token.Boolean) token).value);
         } else if (token instanceof Token.SymbolMark) {
             return parseSymbolOrList(tokens);
         }

@@ -31,22 +31,36 @@ public class TokenStream {
             return null;
 
 
-        switch ((char)in) {
-            case '(': case '[': case '{':
+        switch ((char) in) {
+            case '(':
+            case '[':
+            case '{':
                 return new Token.LeftParen();
-            case ')': case ']': case '}':
+            case ')':
+            case ']':
+            case '}':
                 return new Token.RightParen();
             case '\'':
                 return new Token.SymbolMark();
             case '"':
                 return parseString();
+            case '#':
+                int next = input.read();
+
+                if (next == 't')
+                    return new Token.Boolean(true);
+                else if (next == 'f')
+                    return new Token.Boolean(false);
+                else
+                    throw new LexException("Only legal boolean values are #t and #f.");
+
         }
 
         if (in >= '0' && in <= '9') {
-            return parseInteger((char)in);
+            return parseInteger((char) in);
         }
 
-        return parseName((char)in);
+        return parseName((char) in);
     }
 
     private Token parseInteger(char firstChar) throws IOException, LexException {
@@ -72,7 +86,7 @@ public class TokenStream {
 
         int in = firstChar;
         while (in != 1 && Character.isLetterOrDigit(in)) {
-            res.append((char)in);
+            res.append((char) in);
             in = input.read();
         }
 
@@ -104,10 +118,10 @@ public class TokenStream {
                     case '"':
                         res.append('"');
                     default:
-                        throw new LexException("Invalid character '" + (char)next + "' after escape.");
+                        throw new LexException("Invalid character '" + (char) next + "' after escape.");
                 }
             } else {
-                res.append((char)in);
+                res.append((char) in);
             }
 
             in = input.read();
