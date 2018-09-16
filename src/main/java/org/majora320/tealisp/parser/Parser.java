@@ -97,7 +97,7 @@ public class Parser {
             throw new ParseException("Expected function or expression evaluating to function, got something else.");
         }
 
-        java.util.List arguments = mapReduceTokens(
+        java.util.List<AstNode> arguments = mapReduceTokens(
                 tokens,
                 new ArrayList<>(),
                 Parser::parseNode,
