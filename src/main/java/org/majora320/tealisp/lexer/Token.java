@@ -15,10 +15,22 @@ public class Token {
         }
     }
 
-    public static class SymbolMark extends Token {
+    public static class Quote extends Token {
         @Override
         public java.lang.String toString() {
-            return "SymbolMark";
+            return "Quote";
+        }
+    }
+
+    public static class QuasiQuote extends Token {
+        public java.lang.String toString() {
+            return "QuasiQuote";
+        }
+    }
+
+    public static class UnQuote extends Token {
+        public java.lang.String toString() {
+            return "UnQuote";
         }
     }
 

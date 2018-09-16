@@ -1,5 +1,9 @@
 package org.majora320.tealisp.evaluator;
 
+import org.majora320.tealisp.parser.AstNode;
+
+import java.util.List;
+
 public class LispObject {
     public static class Integer extends LispObject {
         public int value;
@@ -93,6 +97,29 @@ public class LispObject {
         @Override
         public java.lang.String toString() {
             return "";
+        }
+    }
+
+    public static class Function extends LispObject {
+        public java.lang.String name;
+        public java.util.List<String> paramNames;
+        public java.util.List<AstNode> body;
+
+        /**
+         * name *can* be null. If so, this is a lambda (anonymous function).
+         */
+        public Function(java.lang.String name, java.util.List<String> paramNames, java.util.List<AstNode> body) {
+            this.name = name;
+            this.paramNames = paramNames;
+            this.body = body;
+        }
+
+        @Override
+        public java.lang.String toString() {
+            if (name == null)
+                return "#<procedure>";
+            else
+                return "#<procedure:" + name + ">";
         }
     }
 }

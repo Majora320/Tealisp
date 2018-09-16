@@ -41,7 +41,11 @@ public class TokenStream {
             case '}':
                 return new Token.RightParen();
             case '\'':
-                return new Token.SymbolMark();
+                return new Token.Quote();
+            case '`':
+                return new Token.QuasiQuote();
+            case ',':
+                return new Token.UnQuote();
             case '"':
                 return parseString();
             case '#':

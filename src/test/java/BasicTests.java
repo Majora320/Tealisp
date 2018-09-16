@@ -43,8 +43,6 @@ class BasicTests {
             System.out.print(((AstNode.Integer) node).value);
         } else if (node instanceof AstNode.Name) {
             System.out.print(((AstNode.Name) node).value);
-        } else if (node instanceof AstNode.Symbol) {
-            System.out.print("'" + ((AstNode.Symbol) node).value);
         } else if (node instanceof AstNode.String) {
             System.out.print("\"" + ((AstNode.String) node).value + "\"");
         } else if (node instanceof AstNode.Boolean) {
@@ -52,28 +50,25 @@ class BasicTests {
                 System.out.print("#t");
             else
                 System.out.print("#f");
-        } else if (node instanceof AstNode.List) {
-            System.out.print("'(");
-
+        } else if (node instanceof AstNode.Quote) {
+            System.out.print("'");
+            printSyntaxTree(((AstNode.Quote) node).contents);
+        } else if (node instanceof AstNode.QuasiQuote) {
+            System.out.print("`");
+            printSyntaxTree(((AstNode.QuasiQuote) node).contents);
+        } else if (node instanceof AstNode.UnQuote) {
+            System.out.print(",");
+            printSyntaxTree(((AstNode.UnQuote) node).contents);
+        } else if (node instanceof AstNode.Sexp) {
+            System.out.print("(");
             boolean once = false;
 
-            for (AstNode child : ((AstNode.List) node).children) {
+            for (AstNode child : ((AstNode.Sexp) node).contents) {
                 if (once)
                     System.out.print(" ");
                 else
                     once = true;
 
-                printSyntaxTree(child);
-            }
-
-            System.out.print(")");
-        } else if (node instanceof AstNode.FunctionApplication) {
-            System.out.print("(");
-
-            printSyntaxTree(((AstNode.FunctionApplication) node).function);
-
-            for (AstNode child : ((AstNode.FunctionApplication) node).arguments) {
-                System.out.print(" ");
                 printSyntaxTree(child);
             }
 
