@@ -7,6 +7,7 @@ import org.majora320.tealisp.lexer.TokenStream;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.ArrayList;
+import java.util.List;
 
 public class Parser {
     public static AstNode.RootNode parse(Reader input) throws IOException, LexException, ParseException {
@@ -14,7 +15,7 @@ public class Parser {
     }
 
     public static AstNode.RootNode parse(TokenStream tokens) throws IOException, LexException, ParseException {
-        AstNode.RootNode res = new AstNode.RootNode(new ArrayList<AstNode>());
+        AstNode.RootNode res = new AstNode.RootNode(new ArrayList<>());
 
         Token token = tokens.nextToken();
 
@@ -40,14 +41,26 @@ public class Parser {
             return new AstNode.String(((Token.String) token).value);
         } else if (token instanceof Token.Boolean) {
             return new AstNode.Boolean(((Token.Boolean) token).value);
-        } else if (token instanceof Token.Quote) {
+        } else if (token instanceof Token.Quote
+                || token instanceof Token.UnQuote
+                || token instanceof Token.QuasiQuote) {
             Token nextToken = tokens.nextToken();
             if (nextToken == null)
                 throw new ParseException("Expected something after '");
 
             AstNode nextNode = parseNode(nextToken, tokens);
 
-            return new AstNode.Quote(nextNode);
+            List<AstNode> sexpContents = new ArrayList<>();
+
+            if (token instanceof Token.Quote)
+                sexpContents.add(new AstNode.Name("quote"));
+            else if (token instanceof Token.UnQuote)
+                sexpContents.add(new AstNode.Name("unquote"));
+            else if (token instanceof Token.QuasiQuote)
+                sexpContents.add(new AstNode.Name("quasiquote"));
+
+            sexpContents.add(nextNode);
+            return new AstNode.Sexp(sexpContents);
         }
 
         throw new ParseException("This should never happen. If it does, contact Majora320 immediately with error code 451");

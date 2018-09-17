@@ -25,30 +25,6 @@ public class AstNode {
         }
     }
 
-    public static class Quote extends AstNode {
-        public AstNode contents;
-
-        public Quote(AstNode contents) {
-            this.contents = contents;
-        }
-    }
-
-    public static class QuasiQuote extends AstNode {
-        public AstNode contents;
-
-        public QuasiQuote(AstNode contents) {
-            this.contents = contents;
-        }
-    }
-
-    public static class UnQuote extends AstNode {
-        public AstNode contents;
-
-        public UnQuote(AstNode contents) {
-            this.contents = contents;
-        }
-    }
-
     public static class Integer extends AstNode {
         public int value;
 
