@@ -1,5 +1,7 @@
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.majora320.tealisp.evaluator.Evaluator;
+import org.majora320.tealisp.evaluator.LispException;
 import org.majora320.tealisp.lexer.LexException;
 import org.majora320.tealisp.lexer.Token;
 import org.majora320.tealisp.lexer.TokenStream;
@@ -13,13 +15,15 @@ import java.io.StringReader;
 class BasicTests {
     @Test
     void testLexer() {
-        String string = "(hello world 123 '(4 5 6) 'foo \"foo bar baz\" #t #f)";
+        String string = "123 \"foo bar baz\" #t #f (and \"f\" \"z\" #f)";
         TokenStream stream = new TokenStream(new StringReader(string));
 
         try {
             //printTokenStream(stream);
-            printSyntaxTree(Parser.parse(stream));
-        } catch (IOException | LexException | ParseException e) {
+            AstNode.RootNode parsed = Parser.parse(stream);
+            //printSyntaxTree(parsed);
+            System.out.println(new Evaluator(parsed).getGlobalResult());
+        } catch (IOException | LexException | ParseException | LispException e) {
             Assertions.fail(e);
         }
     }
@@ -50,15 +54,6 @@ class BasicTests {
                 System.out.print("#t");
             else
                 System.out.print("#f");
-        } else if (node instanceof AstNode.Quote) {
-            System.out.print("'");
-            printSyntaxTree(((AstNode.Quote) node).contents);
-        } else if (node instanceof AstNode.QuasiQuote) {
-            System.out.print("`");
-            printSyntaxTree(((AstNode.QuasiQuote) node).contents);
-        } else if (node instanceof AstNode.UnQuote) {
-            System.out.print(",");
-            printSyntaxTree(((AstNode.UnQuote) node).contents);
         } else if (node instanceof AstNode.Sexp) {
             System.out.print("(");
             boolean once = false;

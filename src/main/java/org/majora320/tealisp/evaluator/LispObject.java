@@ -122,4 +122,20 @@ public class LispObject {
                 return "#<procedure:" + name + ">";
         }
     }
+
+    public static class JavaFunction extends LispObject {
+        public Class<?> function;
+        public String name;
+        public int numParams;
+
+        /**
+         * All parameters of `function` must be `LispObject`s. It should return a `LispObject`.
+         * If the function does not have a value to return, it should return `LispVoid`, not `null`.
+         */
+        public JavaFunction(Class<?> function, String name, int numParams) {
+            this.function = function;
+            this.name = name;
+            this.numParams = numParams;
+        }
+    }
 }
