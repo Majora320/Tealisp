@@ -1,0 +1,2 @@
+- (9/18/18) Completely rework error messages
+- (9/18/18) Possibly move branches of handleSpecials block into separate functions

@@ -15,7 +15,7 @@ import java.io.StringReader;
 class BasicTests {
     @Test
     void testLexer() {
-        String string = "123 \"foo bar baz\" #t #f (and \"f\" \"z\" #f)";
+        String string = "123 \"foo bar baz\" #t #f (and \"f\" \"z\" #f) (cond [#f 123]) (let ((x 5)) x)";
         TokenStream stream = new TokenStream(new StringReader(string));
 
         try {
