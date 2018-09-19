@@ -39,10 +39,7 @@ public class Evaluator {
         return globalResult;
     }
 
-    public LispObject eval(AstNode node, StackFrame parentFrame) throws LispException {
-        StackFrame frame = new StackFrame(parentFrame);
-
-        // great big loop thru all the node types
+    public LispObject eval(AstNode node, StackFrame frame) throws LispException {
         if (node instanceof AstNode.RootNode) {
             throw new LispException("Only one root node is allowed, and it must be the actual root node.");
         } else if (node instanceof AstNode.Boolean) {
@@ -131,18 +128,18 @@ public class Evaluator {
                 if (contents.size() < 2)
                     throw new LispException("Define missing body");
 
-                AstNode spec = contents.get(0);
-                if (!(spec instanceof AstNode.Name || spec instanceof AstNode.Sexp))
-                    throw new LispException("Expected variable or procedure definition, got something else: " + spec);
+                AstNode defineSpec = contents.get(0);
+                if (!(defineSpec instanceof AstNode.Name || defineSpec instanceof AstNode.Sexp))
+                    throw new LispException("Expected variable or procedure definition, got something else: " + defineSpec);
 
-                if (spec instanceof AstNode.Name) {
+                if (defineSpec instanceof AstNode.Name) {
                     if (contents.size() != 2)
                         throw new LispException("Extra terms for variable definition");
 
-                    frame.storeBinding(((AstNode.Name) spec).value, eval(contents.get(1), new StackFrame(frame)));
+                    frame.storeBinding(((AstNode.Name) defineSpec).value, eval(contents.get(1), new StackFrame(frame)));
                     return new LispObject.Void();
-                } else if (spec instanceof AstNode.Sexp) {
-                    List<AstNode> functionSpec = ((AstNode.Sexp) spec).contents;
+                } else if (defineSpec instanceof AstNode.Sexp) {
+                    List<AstNode> functionSpec = ((AstNode.Sexp) defineSpec).contents;
 
                     if (functionSpec.size() < 1)
                         throw new LispException("Expected function name, got nothing");
@@ -163,7 +160,26 @@ public class Evaluator {
                     return new LispObject.Void();
                 }
             case "lambda":
-                break;
+                if (contents.size() < 2)
+                    throw new LispException("Lambda missing body");
+
+                AstNode lambdaSpec = contents.get(0);
+                if (!(lambdaSpec instanceof AstNode.Sexp))
+                    throw new LispException("Expected argument list, got something else: " + lambdaSpec);
+
+                List<AstNode> functionSpec = ((AstNode.Sexp) lambdaSpec).contents;
+
+                for (AstNode node : functionSpec) {
+                    if (!(node instanceof AstNode.Name))
+                        throw new LispException("Expected argument list, got something else: " + new AstNode.Sexp(contents));
+                }
+
+                List<String> paramNames = functionSpec
+                        .stream()
+                        .map(node -> ((AstNode.Name) node).value)
+                        .collect(Collectors.toList());
+
+                return new LispObject.Function(null, paramNames, contents.subList(1, contents.size()));
             case "let":
             case "let*":
                 if (contents.size() < 2)
@@ -273,6 +289,7 @@ public class Evaluator {
 
                     return orRes;
                 }
+
                 return new LispObject.Boolean(false);
         }
 

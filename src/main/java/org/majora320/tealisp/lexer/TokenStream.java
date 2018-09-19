@@ -4,8 +4,22 @@ package org.majora320.tealisp.lexer;
 import java.io.IOException;
 import java.io.PushbackReader;
 import java.io.Reader;
+import java.util.HashSet;
+import java.util.Set;
 
 public class TokenStream {
+    // Weird syntax to add stuff to a container inline
+    // The first { creates an anonymous class subclassing from HashSet
+    // And the second { creates a static initialization block within that class
+    private Set<Character> allowedNamePunctuation = new HashSet<Character>() {{
+       add('-');
+       add('+');
+       add('=');
+       add('>');
+       add('<');
+       add('?');
+    }};
+
     private PushbackReader input;
 
     public TokenStream(Reader input) {
@@ -85,16 +99,18 @@ public class TokenStream {
         return new Token.Integer(res);
     }
 
-    private Token parseName(char firstChar) throws IOException {
+    private Token parseName(char firstChar) throws IOException, LexException {
         StringBuilder res = new StringBuilder();
 
         int in = firstChar;
-        while (in != 1 && Character.isLetterOrDigit(in)) {
+        while (in != 1 && (Character.isLetterOrDigit(in) || allowedNamePunctuation.contains((char)in))) {
             res.append((char) in);
             in = input.read();
         }
 
         input.unread(in);
+        if (res.length() == 0)
+            throw new LexException("Illegal character: " + firstChar);
         return new Token.Name(res.toString());
     }
 

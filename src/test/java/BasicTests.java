@@ -14,8 +14,14 @@ import java.io.StringReader;
 
 class BasicTests {
     @Test
-    void testLexer() {
-        String string = "123 \"foo bar baz\" #t #f (and \"f\" \"z\" #f) (cond [#f 123]) (let ((x 5)) x)";
+    void test() {
+        String string =
+                "(define (fib-rec n)\n" +
+                "  (if (< n 2)\n" +
+                "      n\n" +
+                "      (+ (fib-rec (- n 1))\n" +
+                "         (fib-rec (- n 2)))))" +
+                "(fib-rec 5)";
         TokenStream stream = new TokenStream(new StringReader(string));
 
         try {
