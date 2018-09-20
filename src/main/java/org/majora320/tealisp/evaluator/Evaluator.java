@@ -2,6 +2,10 @@ package org.majora320.tealisp.evaluator;
 
 import org.majora320.tealisp.parser.AstNode;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -22,7 +26,8 @@ public class Evaluator {
         add("or");
     }};
 
-    private Runtime runtime = new Runtime();
+    protected StackFrame globalFrame = new StackFrame();
+    private Runtime runtime;
 
     public Runtime getRuntime() {
         return runtime;
@@ -31,8 +36,14 @@ public class Evaluator {
     private LispObject globalResult;
 
     public Evaluator(AstNode.RootNode program) throws LispException {
+        this(program, JavaRegistry.getGlobalRegistry());
+    }
+
+    public Evaluator(AstNode.RootNode program, JavaRegistry registry) throws LispException {
+        runtime = new Runtime(this, registry);
+
         for (AstNode child : program.children)
-            globalResult = eval(child, runtime.frame);
+            globalResult = eval(child, globalFrame);
     }
 
     public LispObject getGlobalResult() {
@@ -79,16 +90,7 @@ public class Evaluator {
 
         if (first instanceof AstNode.Name) {
             String name = ((AstNode.Name) first).value;
-
-            if (reservedKeywords.contains(name))
-                return handleSpecials(name, contents.subList(1, contents.size()), frame);
-
-            LispObject value = frame.lookupBinding(name);
-
-            if (value == null)
-                throw new LispException("Undefined variable: " + name);
-
-            return apply(value, contents.subList(1, contents.size()), frame);
+            return apply(name, contents.subList(1, contents.size()), frame);
         } else if (first instanceof AstNode.Sexp) {
             LispObject result = eval(first, new StackFrame(frame));
 
@@ -98,9 +100,56 @@ public class Evaluator {
         throw new LispException("This should never happen. If it does, contact Majora320 immediately with error code 453");
     }
 
-    private LispObject apply(LispObject value, List<AstNode> arguments, StackFrame frame) throws LispException {
-        if (!(value instanceof LispObject.Function))
+    // Bit of code duplication here. Feel free to clean up.
+    protected LispObject apply(String name, List<AstNode> arguments, StackFrame frame) throws LispException {
+        if (reservedKeywords.contains(name))
+            return handleSpecials(name, arguments, frame);
+
+        List<LispObject> lispObjs = new ArrayList<>(arguments.size());
+
+        for (AstNode node : arguments) {
+            lispObjs.add(eval(node, frame));
+        }
+
+        return applyNoSpecials(name, lispObjs, frame);
+    }
+
+    protected LispObject apply(LispObject value, List<AstNode> arguments, StackFrame frame) throws LispException {
+        List<LispObject> lispObjs = new ArrayList<>(arguments.size());
+
+        for (AstNode node : arguments) {
+            lispObjs.add(eval(node, frame));
+        }
+
+        return apply2(value, lispObjs, frame);
+    }
+
+    protected LispObject applyNoSpecials(String name, List<LispObject> arguments, StackFrame frame) throws LispException {
+        LispObject value = null;
+
+        LispObject.JavaFunction javaFunction = runtime.registry.lookupFunction(name);
+        if (javaFunction != null)
+            value = javaFunction;
+
+        LispObject obj = frame.lookupBinding(name);
+        if (obj != null)
+            value = obj;
+
+        if (value == null)
+            throw new LispException("Undefined variable: " + name);
+
+        return apply2(value, arguments, frame);
+    }
+
+    // The apply2 is to work around "method has same erasure" error
+    // Kind of hacky, if you find a better solution go ahead
+
+    protected LispObject apply2(LispObject value, List<LispObject> arguments, StackFrame frame) throws LispException {
+        if (!(value instanceof LispObject.Function || value instanceof LispObject.JavaFunction))
             throw new LispException("Not a function: " + value);
+
+        if (value instanceof LispObject.JavaFunction)
+            return applyJavaFunction((LispObject.JavaFunction) value, arguments, frame);
 
         LispObject.Function function = (LispObject.Function) value;
 
@@ -111,7 +160,7 @@ public class Evaluator {
         StackFrame newFrame = new StackFrame(frame);
 
         for (int i = 0; i < arguments.size(); ++i) {
-            newFrame.storeBinding(function.paramNames.get(i), eval(arguments.get(i), frame));
+            newFrame.storeBinding(function.paramNames.get(i), arguments.get(i));
         }
 
         LispObject res = null;
@@ -120,6 +169,99 @@ public class Evaluator {
         }
 
         return res;
+    }
+
+    // evil black magick hackery
+    private LispObject applyJavaFunction(LispObject.JavaFunction function, List<LispObject> arguments, StackFrame frame) throws LispException {
+        Object functionObj = function.function;
+        Class<?> clazz = functionObj.getClass();
+
+        Method[] methods = clazz.getMethods();
+        Method actualFunction = null;
+        for (Method method : methods) {
+            if (method.getName().equals("apply") || method.getName().equals("accept"))
+                actualFunction = method;
+        }
+
+        if (actualFunction == null)
+            throw new LispException("Not a java function: " + functionObj);
+
+        if (actualFunction.getParameterCount() != arguments.size())
+            throw new LispException("Expected " + actualFunction.getParameterCount() + " arguments, got " + arguments.size());
+
+        Type[] types = actualFunction.getParameterTypes();
+        Object[] params = new Object[actualFunction.getParameterCount()];
+
+        for (int i = 0; i < actualFunction.getParameterCount(); ++i) {
+            LispObject value = arguments.get(i);
+            params[i] = lispObjectToJava(value, types[i]);
+        }
+
+        Object res;
+        try {
+            res = actualFunction.invoke(functionObj, params);
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            throw new LispException(e);
+        }
+
+        return javaObjectToLisp(res);
+    }
+
+    protected Object lispObjectToJava(LispObject obj, Type desiredType) throws LispException {
+        String typeName = desiredType.getTypeName();
+        // TODO remove debug
+        System.out.println(typeName);
+
+        if (typeName.startsWith("org.majora320.tealisp.evaluator.LispObject")) {
+            System.out.println(obj.getClass().getTypeName());
+
+            if (!obj.getClass().getTypeName().equals(typeName)) {
+                throw new LispException(
+                        "Expected " + typeName.substring(typeName.lastIndexOf('.'))
+                                + ", got " + obj.getClass().getTypeName().substring(typeName.lastIndexOf('.'))
+                );
+            }
+
+            return obj.getClass().cast(obj);
+        }
+
+        switch (typeName) {
+            case "java.lang.String":
+                if (!(obj instanceof LispObject.String))
+                    throw new LispException("Expected String, got something else: " + obj);
+
+                return ((LispObject.String) obj).value;
+            case "java.lang.Boolean":
+                if (!(obj instanceof LispObject.Boolean))
+                    throw new LispException("Expected Boolean, got something else: " + obj);
+
+                return ((LispObject.Boolean) obj).value;
+            case "java.lang.Integer":
+                if (!(obj instanceof LispObject.Integer))
+                    throw new LispException("Expected Integer, got something else: " + obj);
+
+                return ((LispObject.Integer) obj).value;
+        }
+
+        throw new LispException("Unsupported lisp type for conversion to Java: " + typeName);
+    }
+
+    protected LispObject javaObjectToLisp(Object obj) throws LispException {
+        if (obj instanceof LispObject)
+            return (LispObject) obj;
+
+        String typeName = obj.getClass().getTypeName();
+
+        switch (typeName) {
+            case "java.lang.String":
+                return new LispObject.String((String) obj);
+            case "java.lang.Boolean":
+                return new LispObject.Boolean((Boolean) obj);
+            case "java.lang.Integer":
+                return new LispObject.Integer((Integer) obj);
+        }
+
+        throw new LispException("Unsupported Java type for conversion to lisp: " + typeName);
     }
 
     private LispObject handleSpecials(String special, List<AstNode> contents, StackFrame frame) throws LispException {
