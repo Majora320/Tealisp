@@ -68,25 +68,31 @@ public class LispObject {
 
         @Override
         public java.lang.String toString() {
-            return realToString(false);
+            return "'" + realToString();
         }
 
         /**
          * If `nested` is true, then we don't need to print the opening '
          */
-        private java.lang.String realToString(boolean nested) {
-            StringBuilder res = new StringBuilder();
-            if (!nested)
-                res.append("'");
+        private java.lang.String realToString() {
+            StringBuilder res = new StringBuilder("(");
+
+            boolean once = false;
 
             for (LispObject obj : elements) {
+                if (once)
+                    res.append(" ");
+                else
+                    once = true;
+
                 if (obj instanceof List) {
-                    res.append(((List) obj).realToString(true));
+                    res.append(((List) obj).realToString());
                 } else {
                     res.append(obj.toString());
                 }
             }
 
+            res.append(")");
             return res.toString();
         }
     }
@@ -123,15 +129,15 @@ public class LispObject {
 
     public static class JavaFunction extends LispObject {
         public java.lang.String name;
-        public Object function;
+        public JavaInterface iface;
 
         /**
          * All parameters of `function` must be `LispObject`s. It should return a `LispObject`.
          * If the function does not have a value to return, it should return `LispVoid`, not `null`.
          */
-        public JavaFunction(java.lang.String name, Object function) {
+        public JavaFunction(java.lang.String name, JavaInterface iface) {
             this.name = name;
-            this.function = function;
+            this.iface = iface;
         }
     }
 }

@@ -24,6 +24,9 @@ public class Evaluator {
         add("cond");
         add("and");
         add("or");
+        add("quote");
+        add("unquote");
+        add("quasiquote");
     }};
 
     protected StackFrame globalFrame = new StackFrame();
@@ -171,97 +174,8 @@ public class Evaluator {
         return res;
     }
 
-    // evil black magick hackery
     private LispObject applyJavaFunction(LispObject.JavaFunction function, List<LispObject> arguments, StackFrame frame) throws LispException {
-        Object functionObj = function.function;
-        Class<?> clazz = functionObj.getClass();
-
-        Method[] methods = clazz.getMethods();
-        Method actualFunction = null;
-        for (Method method : methods) {
-            if (method.getName().equals("apply") || method.getName().equals("accept"))
-                actualFunction = method;
-        }
-
-        if (actualFunction == null)
-            throw new LispException("Not a java function: " + functionObj);
-
-        if (actualFunction.getParameterCount() != arguments.size())
-            throw new LispException("Expected " + actualFunction.getParameterCount() + " arguments, got " + arguments.size());
-
-        Type[] types = actualFunction.getParameterTypes();
-        Object[] params = new Object[actualFunction.getParameterCount()];
-
-        for (int i = 0; i < actualFunction.getParameterCount(); ++i) {
-            LispObject value = arguments.get(i);
-            params[i] = lispObjectToJava(value, types[i]);
-        }
-
-        Object res;
-        try {
-            res = actualFunction.invoke(functionObj, params);
-        } catch (IllegalAccessException | InvocationTargetException e) {
-            throw new LispException(e);
-        }
-
-        return javaObjectToLisp(res);
-    }
-
-    protected Object lispObjectToJava(LispObject obj, Type desiredType) throws LispException {
-        String typeName = desiredType.getTypeName();
-        // TODO remove debug
-        System.out.println(typeName);
-
-        if (typeName.startsWith("org.majora320.tealisp.evaluator.LispObject")) {
-            System.out.println(obj.getClass().getTypeName());
-
-            if (!obj.getClass().getTypeName().equals(typeName)) {
-                throw new LispException(
-                        "Expected " + typeName.substring(typeName.lastIndexOf('.'))
-                                + ", got " + obj.getClass().getTypeName().substring(typeName.lastIndexOf('.'))
-                );
-            }
-
-            return obj.getClass().cast(obj);
-        }
-
-        switch (typeName) {
-            case "java.lang.String":
-                if (!(obj instanceof LispObject.String))
-                    throw new LispException("Expected String, got something else: " + obj);
-
-                return ((LispObject.String) obj).value;
-            case "java.lang.Boolean":
-                if (!(obj instanceof LispObject.Boolean))
-                    throw new LispException("Expected Boolean, got something else: " + obj);
-
-                return ((LispObject.Boolean) obj).value;
-            case "java.lang.Integer":
-                if (!(obj instanceof LispObject.Integer))
-                    throw new LispException("Expected Integer, got something else: " + obj);
-
-                return ((LispObject.Integer) obj).value;
-        }
-
-        throw new LispException("Unsupported lisp type for conversion to Java: " + typeName);
-    }
-
-    protected LispObject javaObjectToLisp(Object obj) throws LispException {
-        if (obj instanceof LispObject)
-            return (LispObject) obj;
-
-        String typeName = obj.getClass().getTypeName();
-
-        switch (typeName) {
-            case "java.lang.String":
-                return new LispObject.String((String) obj);
-            case "java.lang.Boolean":
-                return new LispObject.Boolean((Boolean) obj);
-            case "java.lang.Integer":
-                return new LispObject.Integer((Integer) obj);
-        }
-
-        throw new LispException("Unsupported Java type for conversion to lisp: " + typeName);
+        return function.iface.runFunction(function.name, arguments.toArray(new LispObject[] {}), frame);
     }
 
     private LispObject handleSpecials(String special, List<AstNode> contents, StackFrame frame) throws LispException {
@@ -433,8 +347,53 @@ public class Evaluator {
                 }
 
                 return new LispObject.Boolean(false);
+            case "quote":
+                if (contents.size() != 1) {
+                    throw new LispException("Arity mismatch: expected 1 argument, got " + contents.size() + " for function quote");
+                }
+
+                AstNode content = contents.get(0);
+
+                if (!(content instanceof AstNode.Name) && !(content instanceof AstNode.Sexp))
+                    throw new LispException("Quote not followed by a symbol or list");
+
+                if (content instanceof AstNode.Name) {
+                    return new LispObject.Symbol(((AstNode.Name) content).value);
+                } else if (content instanceof AstNode.Sexp) {
+                    List<LispObject> processedContents = new ArrayList<>();
+
+                    for (AstNode node : ((AstNode.Sexp) content).contents)
+                        processedContents.add(processQuotedObj(node));
+
+                    return new LispObject.List(processedContents);
+                }
         }
 
         throw new LispException("Something has gone horribly wrong. Please consult a local moose to update this.");
+    }
+
+    LispObject processQuotedObj(AstNode node) throws LispException {
+        if (!(node instanceof AstNode.Name) && !(node instanceof AstNode.Sexp) && !(node instanceof AstNode.Integer)
+                && !(node instanceof AstNode.String) && !(node instanceof AstNode.Boolean))
+            throw new LispException("Not quotable: " + node);
+
+        if (node instanceof AstNode.Name) {
+            return new LispObject.Symbol(((AstNode.Name) node).value);
+        } else if (node instanceof AstNode.Sexp) {
+            List<LispObject> processedContents = new ArrayList<>();
+
+            for (AstNode subNode : ((AstNode.Sexp) node).contents)
+                processedContents.add(processQuotedObj(subNode));
+
+            return new LispObject.List(processedContents);
+        } else if (node instanceof AstNode.Integer) {
+            return new LispObject.Integer(((AstNode.Integer) node).value);
+        } else if (node instanceof AstNode.String) {
+            return new LispObject.String(((AstNode.String) node).value);
+        } else if (node instanceof AstNode.Boolean) {
+            return new LispObject.Boolean(((AstNode.Boolean) node).value);
+        }
+
+        throw new LispException("ERROR BEGIN PLEASE CONTACT LOCAL CODING MONKEY TO UPDATE QUOTE TABLE END ERROR");
     }
 }

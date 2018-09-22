@@ -1,40 +1,44 @@
 package org.majora320.tealisp.evaluator;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Register Java functions for use within TeaLisp here.
  */
 public class JavaRegistry {
-    private static JavaRegistry globalRegistry = new JavaRegistry();
-    private Map<String, LispObject.JavaFunction> functions = new HashMap<>();
+    private static JavaRegistry globalRegistry = new JavaRegistry(true);
+    private Set<JavaInterface> interfaces = new HashSet<>();
 
     public static JavaRegistry getGlobalRegistry() {
         return globalRegistry;
     }
 
-    public JavaRegistry() { }
+    /**
+     * @param includeStdLib Whether to include the set of TeaLisp builtin functions.
+     */
+    public JavaRegistry(boolean includeStdLib) {
+        if (includeStdLib)
+            registerInterface(new Builtins());
+    }
     public JavaRegistry(JavaRegistry other) {
-        functions = new HashMap<>(other.functions);
+        interfaces = new HashSet<>(other.interfaces);
     }
 
     public LispObject.JavaFunction lookupFunction(String name) {
-        return functions.get(name);
+        for (JavaInterface iface : interfaces) {
+            if (iface.getSupportedFunctions().contains(name))
+                return new LispObject.JavaFunction(name, iface);
+        }
+
+        return null;
     }
 
-    public void registerFunction(String name, Object function) {
-        functions.put(name, new LispObject.JavaFunction(name, function));
+    public void registerInterface(JavaInterface iface) {
+        interfaces.add(iface);
     }
 
-    /**
-     * Returns true if the function was successfully deregistered, false if it did not exist.
-     */
-    public boolean deregisterFunction(String name) {
-        if (!functions.containsKey(name))
-            return false;
-
-        functions.remove(name);
-        return true;
+    public void deregisterInterface(JavaInterface iface) {
+        interfaces.remove(iface);
     }
 }

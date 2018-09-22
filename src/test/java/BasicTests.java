@@ -21,7 +21,11 @@ class BasicTests {
                 "      n\n" +
                 "      (+ (fib-rec (- n 1))\n" +
                 "         (fib-rec (- n 2)))))" +
-                "(fib-rec 5)";
+                "(define (fib-seq start end)" +
+                        "(if (>= start end)" +
+                        "'()" +
+                        "(cons (fib-rec start) (fib-seq (+ start 1) end))))" +
+                "(fib-seq 0 10)";
         TokenStream stream = new TokenStream(new StringReader(string));
 
         try {

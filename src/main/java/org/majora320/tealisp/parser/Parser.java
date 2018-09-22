@@ -61,6 +61,8 @@ public class Parser {
 
             sexpContents.add(nextNode);
             return new AstNode.Sexp(sexpContents);
+        } else if (token == null) {
+            throw new ParseException("Expected something, got nothing at ???");
         }
 
         throw new ParseException("This should never happen. If it does, contact Majora320 immediately with error code 451");
