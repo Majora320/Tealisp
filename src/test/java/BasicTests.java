@@ -1,6 +1,6 @@
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.majora320.tealisp.evaluator.Evaluator;
+import org.majora320.tealisp.evaluator.Interpreter;
 import org.majora320.tealisp.evaluator.LispException;
 import org.majora320.tealisp.lexer.LexException;
 import org.majora320.tealisp.lexer.Token;
@@ -25,14 +25,14 @@ class BasicTests {
                         "(if (>= start end)" +
                         "'()" +
                         "(cons (fib-rec start) (fib-seq (+ start 1) end))))" +
-                "(fib-seq 0 10)";
+                "(fib-seq 0 10.5)";
         TokenStream stream = new TokenStream(new StringReader(string));
 
         try {
             //printTokenStream(stream);
             AstNode.RootNode parsed = Parser.parse(stream);
             //printSyntaxTree(parsed);
-            System.out.println(new Evaluator(parsed).getGlobalResult());
+            System.out.println(new Interpreter(parsed).getGlobalResult());
         } catch (IOException | LexException | ParseException | LispException e) {
             Assertions.fail(e);
         }

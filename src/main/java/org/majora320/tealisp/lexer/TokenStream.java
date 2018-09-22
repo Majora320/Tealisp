@@ -75,14 +75,16 @@ public class TokenStream {
         }
 
         if (in >= '0' && in <= '9') {
-            return parseInteger((char) in);
+            return parseNumber((char) in);
         }
 
         return parseName((char) in);
     }
 
-    private Token parseInteger(char firstChar) throws IOException, LexException {
+    private Token parseNumber(char firstChar) throws IOException, LexException {
+        boolean integer = true;
         int res = 0;
+        double doubleRes = 0;
 
         int in = firstChar;
         while (in != -1 && Character.isDigit(in)) {
@@ -91,12 +93,29 @@ public class TokenStream {
             in = input.read();
         }
 
-        if (Character.isLetter(in)) {
+        if (in == '.') {
+            integer = false;
+            doubleRes = res;
+            double mul = 0.1;
+            in = input.read();
+
+            while (in != -1 && Character.isDigit(in)) {
+                doubleRes += mul * Character.getNumericValue(in);
+                mul *= 0.1;
+                in = input.read();
+            }
+        }
+
+        if (Character.isLetterOrDigit(in) || allowedNamePunctuation.contains((char)in)) {
             throw new LexException("Expected space between integer and name.");
         }
 
         input.unread(in);
-        return new Token.Integer(res);
+
+        if (integer)
+            return new Token.Integer(res);
+        else
+            return new Token.Double(doubleRes);
     }
 
     private Token parseName(char firstChar) throws IOException, LexException {

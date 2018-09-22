@@ -33,6 +33,15 @@ public class AstNode {
         }
     }
 
+    public static class Double extends AstNode {
+        public double value;
+
+        public Double(double value) {
+            this.value = value;
+        }
+    }
+
+
     public static class String extends AstNode {
         public java.lang.String value;
 

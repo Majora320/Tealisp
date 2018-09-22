@@ -16,6 +16,19 @@ public class LispObject {
         }
     }
 
+    public static class Double extends LispObject {
+        public double value;
+
+        public Double(double value) {
+            this.value = value;
+        }
+
+        @Override
+        public java.lang.String toString() {
+            return java.lang.String.valueOf(value);
+        }
+    }
+
     public static class Symbol extends LispObject {
         public java.lang.String value;
 

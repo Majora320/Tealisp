@@ -35,6 +35,8 @@ public class Parser {
             throw new ParseException("Extra right parenthesis.");
         } else if (token instanceof Token.Integer) {
             return new AstNode.Integer(((Token.Integer) token).value);
+        } else if (token instanceof Token.Double) {
+            return new AstNode.Double(((Token.Double) token).value);
         } else if (token instanceof Token.Name) {
             return new AstNode.Name(((Token.Name) token).value);
         } else if (token instanceof Token.String) {

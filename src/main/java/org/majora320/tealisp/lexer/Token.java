@@ -60,6 +60,19 @@ public class Token {
         }
     }
 
+    public static class Double extends Token {
+        public double value;
+
+        public Double(double value) {
+            this.value = value;
+        }
+
+        @Override
+        public java.lang.String toString() {
+            return "Double[" + value + "]";
+        }
+    }
+
     public static class String extends Token {
         public java.lang.String value;
 

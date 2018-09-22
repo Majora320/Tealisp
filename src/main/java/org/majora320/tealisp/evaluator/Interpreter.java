@@ -2,16 +2,13 @@ package org.majora320.tealisp.evaluator;
 
 import org.majora320.tealisp.parser.AstNode;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class Evaluator {
+public class Interpreter {
     // Weird syntax to add stuff to a container inline
     // The first { creates an anonymous class subclassing from HashSet
     // And the second { creates a static initialization block within that class
@@ -38,11 +35,11 @@ public class Evaluator {
 
     private LispObject globalResult;
 
-    public Evaluator(AstNode.RootNode program) throws LispException {
+    public Interpreter(AstNode.RootNode program) throws LispException {
         this(program, JavaRegistry.getGlobalRegistry());
     }
 
-    public Evaluator(AstNode.RootNode program, JavaRegistry registry) throws LispException {
+    public Interpreter(AstNode.RootNode program, JavaRegistry registry) throws LispException {
         runtime = new Runtime(this, registry);
 
         for (AstNode child : program.children)
@@ -62,6 +59,8 @@ public class Evaluator {
             return new LispObject.String(((AstNode.String) node).value);
         } else if (node instanceof AstNode.Integer) {
             return new LispObject.Integer(((AstNode.Integer) node).value);
+        } else if (node instanceof AstNode.Double) {
+            return new LispObject.Double(((AstNode.Double) node).value);
         } else if (node instanceof AstNode.Name) {
             String name = ((AstNode.Name) node).value;
 
