@@ -3,7 +3,11 @@ package org.majora320.tealisp.evaluator;
 import org.majora320.tealisp.parser.AstNode;
 
 public class LispObject {
-    public static class Integer extends LispObject {
+    public static class Number extends LispObject {
+
+    }
+
+    public static class Integer extends Number {
         public int value;
 
         public Integer(int value) {
@@ -16,7 +20,7 @@ public class LispObject {
         }
     }
 
-    public static class Double extends LispObject {
+    public static class Double extends Number {
         public double value;
 
         public Double(double value) {

@@ -1,6 +1,5 @@
 package org.majora320.tealisp.evaluator;
 
-import java.util.Arrays;
 import java.util.Set;
 
 public abstract class JavaInterface {
@@ -26,7 +25,7 @@ public abstract class JavaInterface {
         for (int i = 0; i < params.length; ++i) {
             if (variadic && (i >= types.length)) {
                 if (!types[types.length - 1].isAssignableFrom(params[i].getClass()))
-                    throw new LispException("Type mismatch: expected " + types[i].getSimpleName()
+                    throw new LispException("Type mismatch: expected " + types[types.length-1].getSimpleName()
                             + ", got " + params[i].getClass().getSimpleName() + " for function " + functionName);
                 continue;
             }
