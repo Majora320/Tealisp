@@ -55,19 +55,22 @@ public class Builtins extends JavaInterface {
                 );
             case ">":
                 checkParams(">", params, new Class[]{ LispObject.Number.class, LispObject.Number.class }, true);
-                return new LispObject.Boolean(((LispObject.Integer)params[0]).value > ((LispObject.Integer)params[1]).value);
+                return mapReduceCompare(params, (a, b) -> a > b, (a, b) -> a > b);
             case "<":
                 checkParams("<", params, new Class[]{ LispObject.Number.class, LispObject.Number.class }, true);
-                return new LispObject.Boolean(((LispObject.Integer)params[0]).value < ((LispObject.Integer)params[1]).value);
+                return mapReduceCompare(params, (a, b) -> a < b, (a, b) -> a < b);
             case "=":
                 checkParams("=", params, new Class[]{ LispObject.Number.class, LispObject.Number.class }, true);
-                return new LispObject.Boolean(((LispObject.Integer)params[0]).value == ((LispObject.Integer)params[1]).value);
+                return mapReduceCompare(params, Integer::equals, Double::equals);
+            case "!=":
+                checkParams("!=", params, new Class[]{ LispObject.Number.class, LispObject.Number.class }, true);
+                return mapReduceCompare(params, (a, b) -> !a.equals(b), (a, b) -> !a.equals(b));
             case ">=":
                 checkParams(">=", params, new Class[]{ LispObject.Number.class, LispObject.Number.class }, true);
                 return mapReduceCompare(params, (a, b) -> a >= b, (a, b) -> a >= b);
             case "<=":
                 checkParams("<=", params, new Class[]{ LispObject.Number.class, LispObject.Number.class }, true);
-                return new LispObject.Boolean(((LispObject.Integer)params[0]).value <= ((LispObject.Integer)params[1]).value);
+                return mapReduceCompare(params, (a, b) -> a <= b, (a, b) -> a <= b);
             case "cons":
                 checkParams("cons", params, new Class[]{ LispObject.class, LispObject.List.class }, false);
                 List<LispObject> res = new ArrayList<>();
