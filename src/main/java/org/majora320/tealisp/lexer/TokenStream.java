@@ -14,6 +14,8 @@ public class TokenStream {
     private Set<Character> allowedNamePunctuation = new HashSet<Character>() {{
        add('-');
        add('+');
+       add('*');
+       add('/');
        add('=');
        add('>');
        add('<');

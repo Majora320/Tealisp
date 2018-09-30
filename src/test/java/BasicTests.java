@@ -25,7 +25,7 @@ class BasicTests {
                         "(if (>= start end)" +
                         "'()" +
                         "(cons (fib-rec start) (fib-seq (+ start 1) end))))" +
-                "(fib-seq 0 10.5)";
+                "(/ 3.0 2.0)";
         TokenStream stream = new TokenStream(new StringReader(string));
 
         try {
