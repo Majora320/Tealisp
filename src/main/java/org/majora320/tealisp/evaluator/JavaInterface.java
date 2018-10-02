@@ -7,6 +7,9 @@ public abstract class JavaInterface {
     public abstract LispObject runFunction(String name, LispObject[] params, StackFrame frame) throws LispException;
 
     /**
+     * The checkParams function will check the types of actual parameters passed to a function with a list of expected
+     * types. If any mismatch is detected, it will throw a LispException including the name of the function.
+     *
      * If 'variadic' is true, parameters with the same type as the last member of 'types' can be repeated from zero (!)
      * to infinity times as long as they are at the end of the parameter list.
      */

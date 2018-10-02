@@ -1,7 +1,12 @@
 package org.majora320.tealisp.evaluator;
 
+import org.majora320.tealisp.lexer.LexException;
 import org.majora320.tealisp.parser.AstNode;
+import org.majora320.tealisp.parser.ParseException;
+import org.majora320.tealisp.parser.Parser;
 
+import java.io.IOException;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -34,6 +39,14 @@ public class Interpreter {
     }
 
     private LispObject globalResult;
+
+    public Interpreter(Reader reader) throws LispException, ParseException, LexException, IOException {
+        this(Parser.parse(reader));
+    }
+
+    public Interpreter(Reader reader, JavaRegistry registry) throws LispException, ParseException, LexException, IOException {
+        this(Parser.parse(reader), registry);
+    }
 
     public Interpreter(AstNode.RootNode program) throws LispException {
         this(program, JavaRegistry.getGlobalRegistry());

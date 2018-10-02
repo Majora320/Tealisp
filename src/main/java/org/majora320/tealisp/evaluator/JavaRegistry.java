@@ -14,6 +14,10 @@ public class JavaRegistry {
         return globalRegistry;
     }
 
+    public JavaRegistry() {
+        this(true);
+    }
+
     /**
      * @param includeStdLib Whether to include the set of TeaLisp builtin functions.
      */
