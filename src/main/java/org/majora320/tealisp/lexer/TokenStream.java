@@ -76,19 +76,33 @@ public class TokenStream {
 
         }
 
-        if (in >= '0' && in <= '9') {
-            return parseNumber((char) in);
+        if (in >= '0' && in <= '9' || in == '-') {
+            int nextIn = input.read();
+
+            if (!(in == '-') || (nextIn >= '0' && nextIn <= '9')) {
+                input.unread(nextIn);
+                return parseNumber((char) in);
+            }
+
+            input.unread(nextIn);
         }
 
         return parseName((char) in);
     }
 
     private Token parseNumber(char firstChar) throws IOException, LexException {
+        boolean negative = false;
         boolean integer = true;
         int res = 0;
         double doubleRes = 0;
 
         int in = firstChar;
+
+        if (firstChar == '-') {
+            negative = true;
+            in = input.read();
+        }
+
         while (in != -1 && Character.isDigit(in)) {
             res *= 10;
             res += Character.getNumericValue(in);
@@ -113,6 +127,11 @@ public class TokenStream {
         }
 
         input.unread(in);
+
+        if (negative) {
+            res *= -1;
+            doubleRes *= -1;
+        }
 
         if (integer)
             return new Token.Integer(res);

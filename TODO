@@ -1,4 +1,6 @@
-- (9/22/18) Implement stdlib support for doubles and full variadic support
+- (10/2/18) Wrap around divide by 0
+- (10/2/18) Write toString functions for AstNodes
+- (9/22/18) Implement stdlib support for doubles and full variadic support [✓]
 - (9/18/18) Completely rework error messages
 - (9/18/18) Possibly move branches of handleSpecials block into separate functions
 - (9/19/18) Implement doubles [✓]

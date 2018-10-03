@@ -328,7 +328,7 @@ public class Interpreter {
 
                     LispObject condCondition = eval(clause.get(0), frame);
                     if (!(condCondition instanceof LispObject.Boolean
-                            && ((LispObject.Boolean) condCondition).value == false)) {
+                            && !((LispObject.Boolean) condCondition).value)) {
                         result = condCondition;
 
                         for (int j = 1; j < clause.size(); j++) {
@@ -344,7 +344,7 @@ public class Interpreter {
                 LispObject andRes = new LispObject.Boolean(true);
                 for (AstNode node : contents) {
                     andRes = eval(node, frame);
-                    if (andRes instanceof LispObject.Boolean && ((LispObject.Boolean) andRes).value == false)
+                    if (andRes instanceof LispObject.Boolean && !((LispObject.Boolean) andRes).value)
                         return andRes;
                 }
 
@@ -352,7 +352,7 @@ public class Interpreter {
             case "or":
                 for (AstNode node : contents) {
                     LispObject orRes = eval(node, frame);
-                    if (orRes instanceof LispObject.Boolean && ((LispObject.Boolean) orRes).value == false)
+                    if (orRes instanceof LispObject.Boolean && !((LispObject.Boolean) orRes).value)
                         continue;
 
                     return orRes;
