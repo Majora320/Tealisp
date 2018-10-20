@@ -1,13 +1,14 @@
 package org.majora320.tealisp.lexer;
 
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.PushbackReader;
 import java.io.Reader;
 import java.util.HashSet;
 import java.util.Set;
 
-public class TokenStream {
+public class TokenStream implements Closeable {
     // Weird syntax to add stuff to a container inline
     // The first { creates an anonymous class subclassing from HashSet
     // And the second { creates a static initialization block within that class
@@ -34,8 +35,6 @@ public class TokenStream {
      * null.
      *
      * @return A token when there are tokens left, otherwise null.
-     * @throws IOException
-     * @throws LexException
      */
     public Token nextToken() throws IOException, LexException {
         int in = input.read();
@@ -196,5 +195,10 @@ public class TokenStream {
 
         if (c == '\n')
             throw new LexException("Newlines in strings are not supported except by \\n");
+    }
+
+    @Override
+    public void close() throws IOException {
+        input.close();
     }
 }
