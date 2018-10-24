@@ -42,6 +42,10 @@ public class JavaRegistry {
         interfaces.add(iface);
     }
 
+    public void registerInterfaces(Set<JavaInterface> ifaces) {
+        interfaces.addAll(ifaces);
+    }
+
     public void deregisterInterface(JavaInterface iface) {
         interfaces.remove(iface);
     }
