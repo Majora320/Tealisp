@@ -160,10 +160,10 @@ public class LispObject {
 
     /** Opaque (to Tealisp) Java object meant to be passed to and from Java functions */
     public static class JavaObject extends LispObject {
-        public Object obj;
+        public Object value;
 
-        public JavaObject(Object obj) {
-            this.obj = obj;
+        public JavaObject(Object value) {
+            this.value = value;
         }
     }
 }
