@@ -157,4 +157,13 @@ public class LispObject {
             this.iface = iface;
         }
     }
+
+    /** Opaque (to Tealisp) Java object meant to be passed to and from Java functions */
+    public static class JavaObject extends LispObject {
+        public Object obj;
+
+        public JavaObject(Object obj) {
+            this.obj = obj;
+        }
+    }
 }

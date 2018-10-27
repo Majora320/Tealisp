@@ -63,6 +63,10 @@ public class Interpreter {
         return globalResult;
     }
 
+    public StackFrame getGlobalFrame() {
+        return globalFrame;
+    }
+
     public LispObject eval(AstNode node, StackFrame frame) throws LispException {
         if (node instanceof AstNode.RootNode) {
             throw new LispException("Only one root node is allowed, and it must be the actual root node.");

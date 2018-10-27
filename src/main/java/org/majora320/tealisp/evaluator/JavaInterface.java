@@ -1,9 +1,7 @@
 package org.majora320.tealisp.evaluator;
 
-import java.util.Set;
-
 public abstract class JavaInterface {
-    public abstract Set<String> getSupportedFunctions();
+    public abstract boolean isSupportedFunction(String function);
     public abstract LispObject runFunction(String name, LispObject[] params, StackFrame frame) throws LispException;
 
     /**

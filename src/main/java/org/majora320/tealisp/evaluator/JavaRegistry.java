@@ -31,7 +31,7 @@ public class JavaRegistry {
 
     public LispObject.JavaFunction lookupFunction(String name) {
         for (JavaInterface iface : interfaces) {
-            if (iface.getSupportedFunctions().contains(name))
+            if (iface.isSupportedFunction(name))
                 return new LispObject.JavaFunction(name, iface);
         }
 

@@ -5,19 +5,15 @@ import java.util.function.BiFunction;
 
 public class Builtins extends JavaInterface {
     @Override
-    public Set<String> getSupportedFunctions() {
-        HashSet<String> res = new HashSet<>();
-        res.add("+");
-        res.add("-");
-        res.add("*");
-        res.add("/");
-        res.add(">");
-        res.add("<");
-        res.add("=");
-        res.add(">=");
-        res.add("<=");
-        res.add("cons");
-        return res;
+    public boolean isSupportedFunction(String name) {
+        switch (name) {
+            case "+": case "-": case "*": case "/":
+            case ">": case "<": case "=": case ">=": case "<=":
+            case "cons":
+                return true;
+            default:
+                return false;
+        }
     }
 
     @Override
