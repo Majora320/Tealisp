@@ -20,6 +20,7 @@ public class Builtins extends JavaInterface {
             case "<=":
             case "cons":
             case "not":
+            case "void":
                 return true;
             default:
                 return false;
@@ -86,6 +87,9 @@ public class Builtins extends JavaInterface {
             case "not":
                 checkParams("not", params, new Class[]{LispObject.Boolean.class}, false);
                 return new LispObject.Boolean(!((LispObject.Boolean) params[0]).value);
+            case "void":
+                checkParams("void", params, new Class[]{}, false);
+                return new LispObject.Void();
             default:
                 return null;
         }
