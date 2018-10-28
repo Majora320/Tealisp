@@ -1,15 +1,25 @@
 package org.majora320.tealisp.evaluator;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.function.BiFunction;
 
 public class Builtins extends JavaInterface {
     @Override
     public boolean isSupportedFunction(String name) {
         switch (name) {
-            case "+": case "-": case "*": case "/":
-            case ">": case "<": case "=": case ">=": case "<=":
+            case "+":
+            case "-":
+            case "*":
+            case "/":
+            case ">":
+            case "<":
+            case "=":
+            case ">=":
+            case "<=":
             case "cons":
+            case "not":
                 return true;
             default:
                 return false;
@@ -20,59 +30,62 @@ public class Builtins extends JavaInterface {
     public LispObject runFunction(String name, LispObject[] params, StackFrame frame) throws LispException {
         switch (name) {
             case "+":
-                checkParams("+", params, new Class[]{ LispObject.Number.class }, true);
+                checkParams("+", params, new Class[]{LispObject.Number.class}, true);
 
                 return mapReduceNumber(params, new LispObject.Integer(0), (a, b) -> a + b, (a, b) -> a + b);
             case "-":
-                checkParams("+", params, new Class[]{ LispObject.Number.class }, true);
+                checkParams("+", params, new Class[]{LispObject.Number.class}, true);
 
                 return mapReduceNumber(
                         Arrays.asList(params)
                                 .subList(1, params.length)
-                                .toArray(new LispObject[] {}),
+                                .toArray(new LispObject[]{}),
                         (LispObject.Number) params[0],
                         (a, b) -> a - b,
                         (a, b) -> a - b
                 );
             case "*":
-                checkParams("*", params, new Class[]{ LispObject.Number.class }, true);
+                checkParams("*", params, new Class[]{LispObject.Number.class}, true);
 
                 return mapReduceNumber(params, new LispObject.Integer(1), (a, b) -> a * b, (a, b) -> a * b);
             case "/":
-                checkParams("/", params, new Class[]{ LispObject.Number.class }, true);
+                checkParams("/", params, new Class[]{LispObject.Number.class}, true);
 
                 return mapReduceNumber(
                         Arrays.asList(params)
                                 .subList(1, params.length)
-                                .toArray(new LispObject[] { }),
+                                .toArray(new LispObject[]{}),
                         (LispObject.Number) params[0],
                         (a, b) -> a / b,
                         (a, b) -> a / b
                 );
             case ">":
-                checkParams(">", params, new Class[]{ LispObject.Number.class, LispObject.Number.class }, true);
+                checkParams(">", params, new Class[]{LispObject.Number.class, LispObject.Number.class}, true);
                 return mapReduceCompare(params, (a, b) -> a > b, (a, b) -> a > b);
             case "<":
-                checkParams("<", params, new Class[]{ LispObject.Number.class, LispObject.Number.class }, true);
+                checkParams("<", params, new Class[]{LispObject.Number.class, LispObject.Number.class}, true);
                 return mapReduceCompare(params, (a, b) -> a < b, (a, b) -> a < b);
             case "=":
-                checkParams("=", params, new Class[]{ LispObject.Number.class, LispObject.Number.class }, true);
+                checkParams("=", params, new Class[]{LispObject.Number.class, LispObject.Number.class}, true);
                 return mapReduceCompare(params, Integer::equals, Double::equals);
             case "!=":
-                checkParams("!=", params, new Class[]{ LispObject.Number.class, LispObject.Number.class }, true);
+                checkParams("!=", params, new Class[]{LispObject.Number.class, LispObject.Number.class}, true);
                 return mapReduceCompare(params, (a, b) -> !a.equals(b), (a, b) -> !a.equals(b));
             case ">=":
-                checkParams(">=", params, new Class[]{ LispObject.Number.class, LispObject.Number.class }, true);
+                checkParams(">=", params, new Class[]{LispObject.Number.class, LispObject.Number.class}, true);
                 return mapReduceCompare(params, (a, b) -> a >= b, (a, b) -> a >= b);
             case "<=":
-                checkParams("<=", params, new Class[]{ LispObject.Number.class, LispObject.Number.class }, true);
+                checkParams("<=", params, new Class[]{LispObject.Number.class, LispObject.Number.class}, true);
                 return mapReduceCompare(params, (a, b) -> a <= b, (a, b) -> a <= b);
             case "cons":
-                checkParams("cons", params, new Class[]{ LispObject.class, LispObject.List.class }, false);
+                checkParams("cons", params, new Class[]{LispObject.class, LispObject.List.class}, false);
                 List<LispObject> res = new ArrayList<>();
                 res.add(params[0]);
-                res.addAll(((LispObject.List)params[1]).elements);
+                res.addAll(((LispObject.List) params[1]).elements);
                 return new LispObject.List(res);
+            case "not":
+                checkParams("not", params, new Class[]{LispObject.Boolean.class}, false);
+                return new LispObject.Boolean(((LispObject.Boolean) params[0]).value);
             default:
                 return null;
         }
@@ -100,7 +113,7 @@ public class Builtins extends JavaInterface {
         for (LispObject param : params) {
             if (param instanceof LispObject.Integer) {
                 if (isDouble)
-                    doubleRes = doubleFn.apply(doubleRes, (double)((LispObject.Integer) param).value);
+                    doubleRes = doubleFn.apply(doubleRes, (double) ((LispObject.Integer) param).value);
                 else
                     intRes = intFn.apply(intRes, ((LispObject.Integer) param).value);
             } else {
@@ -126,15 +139,15 @@ public class Builtins extends JavaInterface {
         boolean res = true;
 
         // Delicious Spaghetti
-        for (int i = 0; i < params.length-1; ++i) {
-            if (params[i] instanceof LispObject.Integer && params[i+1] instanceof LispObject.Integer) {
-                res = intFn.apply(((LispObject.Integer) params[i]).value, ((LispObject.Integer) params[i+1]).value);
-            } else if (params[i] instanceof LispObject.Integer && params[i+1] instanceof LispObject.Double) {
-                res = doubleFn.apply((double)((LispObject.Integer) params[i]).value, ((LispObject.Double) params[i+1]).value);
-            } else if (params[i] instanceof LispObject.Double && params[i+1] instanceof LispObject.Integer) {
-                res = doubleFn.apply(((LispObject.Double) params[i]).value, (double)((LispObject.Integer) params[i+1]).value);
-            } else if (params[i] instanceof LispObject.Double && params[i+1] instanceof LispObject.Double) {
-                res = doubleFn.apply(((LispObject.Double) params[i]).value, ((LispObject.Double) params[i+1]).value);
+        for (int i = 0; i < params.length - 1; ++i) {
+            if (params[i] instanceof LispObject.Integer && params[i + 1] instanceof LispObject.Integer) {
+                res = intFn.apply(((LispObject.Integer) params[i]).value, ((LispObject.Integer) params[i + 1]).value);
+            } else if (params[i] instanceof LispObject.Integer && params[i + 1] instanceof LispObject.Double) {
+                res = doubleFn.apply((double) ((LispObject.Integer) params[i]).value, ((LispObject.Double) params[i + 1]).value);
+            } else if (params[i] instanceof LispObject.Double && params[i + 1] instanceof LispObject.Integer) {
+                res = doubleFn.apply(((LispObject.Double) params[i]).value, (double) ((LispObject.Integer) params[i + 1]).value);
+            } else if (params[i] instanceof LispObject.Double && params[i + 1] instanceof LispObject.Double) {
+                res = doubleFn.apply(((LispObject.Double) params[i]).value, ((LispObject.Double) params[i + 1]).value);
             }
 
             if (!res)
