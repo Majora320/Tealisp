@@ -48,6 +48,11 @@ public class TokenStream implements Closeable {
 
 
         switch ((char) in) {
+            case ';':
+                while (in != -1 && in != '\n')
+                    in = input.read();
+
+                return nextToken();
             case '(':
             case '[':
             case '{':
