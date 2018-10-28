@@ -31,4 +31,16 @@ public class StackFrame {
     public void storeBinding(String name, LispObject value) {
         bindings.put(name, value);
     }
+
+    public void modifyBinding(String name, LispObject value) throws LispException {
+        if (bindings.containsKey(name)) {
+            bindings.put(name, value);
+            return;
+        }
+
+        if (parent == null)
+            throw new LispException("Tried to call set! on an nonexistant identifier");
+        else
+            parent.modifyBinding(name, value);
+    }
 }

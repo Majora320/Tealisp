@@ -21,6 +21,7 @@ public class TokenStream implements Closeable {
        add('>');
        add('<');
        add('?');
+       add('!');
     }};
 
     private PushbackReader input;
@@ -142,12 +143,14 @@ public class TokenStream implements Closeable {
         StringBuilder res = new StringBuilder();
 
         int in = firstChar;
-        while (in != 1 && (Character.isLetterOrDigit(in) || allowedNamePunctuation.contains((char)in))) {
+        while (in != -1 && (Character.isLetterOrDigit(in) || allowedNamePunctuation.contains((char)in))) {
             res.append((char) in);
             in = input.read();
         }
 
-        input.unread(in);
+        if (in != -1)
+            input.unread(in);
+
         if (res.length() == 0)
             throw new LexException("Illegal character: " + firstChar);
         return new Token.Name(res.toString());

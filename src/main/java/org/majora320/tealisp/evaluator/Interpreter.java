@@ -22,6 +22,7 @@ public class Interpreter {
         add("lambda");
         add("let");
         add("let*");
+        add("set!");
         add("if");
         add("cond");
         add("and");
@@ -291,6 +292,19 @@ public class Interpreter {
                     res = eval(contents.get(i), newFrame);
 
                 return res;
+            case "set!":
+                if (contents.size() != 2)
+                    throw new LispException("set! has the wrong number of arguments");
+
+                AstNode rawName = contents.get(0);
+
+                if (!(rawName instanceof AstNode.Name))
+                    throw new LispException("Expected identifier passed to set!");
+
+                LispObject value = eval(contents.get(1), frame);
+                frame.modifyBinding(((AstNode.Name)rawName).value, value);
+
+                return new LispObject.Void();
             case "if":
                 if (contents.size() != 3)
                     throw new LispException("If expression must have exactly 3 arguments");
