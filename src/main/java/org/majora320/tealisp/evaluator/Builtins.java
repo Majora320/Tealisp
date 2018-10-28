@@ -85,7 +85,7 @@ public class Builtins extends JavaInterface {
                 return new LispObject.List(res);
             case "not":
                 checkParams("not", params, new Class[]{LispObject.Boolean.class}, false);
-                return new LispObject.Boolean(((LispObject.Boolean) params[0]).value);
+                return new LispObject.Boolean(!((LispObject.Boolean) params[0]).value);
             default:
                 return null;
         }
