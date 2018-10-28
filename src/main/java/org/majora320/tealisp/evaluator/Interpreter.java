@@ -24,6 +24,8 @@ public class Interpreter {
         add("let*");
         add("set!");
         add("if");
+        add("when");
+        add("unless");
         add("cond");
         add("and");
         add("or");
@@ -192,7 +194,7 @@ public class Interpreter {
     }
 
     private LispObject applyJavaFunction(LispObject.JavaFunction function, List<LispObject> arguments, StackFrame frame) throws LispException {
-        return function.iface.runFunction(function.name, arguments.toArray(new LispObject[] {}), frame);
+        return function.iface.runFunction(function.name, arguments.toArray(new LispObject[]{}), frame);
     }
 
     private LispObject handleSpecials(String special, List<AstNode> contents, StackFrame frame) throws LispException {
@@ -302,7 +304,7 @@ public class Interpreter {
                     throw new LispException("Expected identifier passed to set!");
 
                 LispObject value = eval(contents.get(1), frame);
-                frame.modifyBinding(((AstNode.Name)rawName).value, value);
+                frame.modifyBinding(((AstNode.Name) rawName).value, value);
 
                 return new LispObject.Void();
             case "if":
@@ -315,6 +317,24 @@ public class Interpreter {
                     return eval(contents.get(2), frame);
                 else
                     return eval(contents.get(1), frame);
+            case "when":
+            case "unless":
+                if (contents.size() != 2)
+                    throw new LispException((special.equals("when") ? "When" : "Unless") + " expression must have exactly 2 arguments");
+
+                LispObject condition = eval(contents.get(0), frame);
+
+                if (condition instanceof LispObject.Boolean && ((LispObject.Boolean) condition).value == false) {
+                    if (special.equals("when"))
+                        return new LispObject.Void();
+                    else
+                        return eval(contents.get(1), frame);
+                } else {
+                    if (special.equals("when"))
+                        return eval(contents.get(1), frame);
+                    else
+                        return new LispObject.Void();
+                }
             case "cond":
                 LispObject result = new LispObject.Void();
                 if (contents.size() == 0)
