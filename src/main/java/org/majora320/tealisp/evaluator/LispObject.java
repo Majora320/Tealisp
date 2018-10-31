@@ -2,8 +2,47 @@ package org.majora320.tealisp.evaluator;
 
 import org.majora320.tealisp.parser.AstNode;
 
-public class LispObject {
-    public static class Number extends LispObject {
+import java.util.stream.Collectors;
+
+public abstract class LispObject {
+    public static LispObject fromJavaObject(Object obj) throws ClassNotFoundException {
+        if (obj instanceof java.lang.Integer) {
+            return new Integer((java.lang.Integer) obj);
+        } else if (obj instanceof java.lang.Double) {
+            return new Double((java.lang.Double) obj);
+        } else if (obj instanceof java.lang.String) {
+            return new String((java.lang.String) obj);
+        } else if (obj instanceof java.lang.Boolean) {
+            return new Boolean((java.lang.Boolean) obj);
+        } else if (obj instanceof java.util.List) {
+            java.util.List<LispObject> converted;
+
+            try {
+                converted =
+                        ((java.util.List<Object>) obj)
+                                .stream()
+                                .map(o -> {
+                                    try {
+                                        return LispObject.fromJavaObject(o);
+                                    } catch (ClassNotFoundException e) {
+                                        throw new RuntimeException(e);
+                                    }
+                                })
+                                .collect(Collectors.toList());
+            } catch (RuntimeException e) {
+                if (e.getCause() instanceof ClassNotFoundException)
+                    throw (ClassNotFoundException) e.getCause();
+                else
+                    throw e;
+            }
+
+            return new List(converted);
+        }
+
+        throw new ClassNotFoundException("Matching Tealisp type not found for class " + obj.getClass());
+    }
+
+    public static abstract class Number extends LispObject {
 
     }
 
@@ -115,6 +154,10 @@ public class LispObject {
     }
 
     public static class Void extends LispObject {
+        public Void() {
+
+        }
+
         @Override
         public java.lang.String toString() {
             return "";
@@ -158,7 +201,9 @@ public class LispObject {
         }
     }
 
-    /** Opaque (to Tealisp) Java object meant to be passed to and from Java functions */
+    /**
+     * Opaque (to Tealisp) Java object meant to be passed to and from Java functions
+     */
     public static class JavaObject extends LispObject {
         public Object value;
 
