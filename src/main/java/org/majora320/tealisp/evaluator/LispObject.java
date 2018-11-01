@@ -5,6 +5,8 @@ import org.majora320.tealisp.parser.AstNode;
 import java.util.stream.Collectors;
 
 public abstract class LispObject {
+    public abstract Object getValue();
+
     public static LispObject fromJavaObject(Object obj) throws ClassNotFoundException {
         if (obj instanceof java.lang.Integer) {
             return new Integer((java.lang.Integer) obj);
@@ -47,7 +49,7 @@ public abstract class LispObject {
     }
 
     public static class Integer extends Number {
-        public int value;
+        private int value;
 
         public Integer(int value) {
             this.value = value;
@@ -57,10 +59,15 @@ public abstract class LispObject {
         public java.lang.String toString() {
             return java.lang.String.valueOf(value);
         }
+
+        @Override
+        public java.lang.Integer getValue() {
+            return value;
+        }
     }
 
     public static class Double extends Number {
-        public double value;
+        private double value;
 
         public Double(double value) {
             this.value = value;
@@ -70,10 +77,15 @@ public abstract class LispObject {
         public java.lang.String toString() {
             return java.lang.String.valueOf(value);
         }
+
+        @Override
+        public java.lang.Double getValue() {
+            return value;
+        }
     }
 
     public static class Symbol extends LispObject {
-        public java.lang.String value;
+        private java.lang.String value;
 
         public Symbol(java.lang.String value) {
             this.value = value;
@@ -83,10 +95,15 @@ public abstract class LispObject {
         public java.lang.String toString() {
             return "'" + value;
         }
+
+        @Override
+        public java.lang.String getValue() {
+            return value;
+        }
     }
 
     public static class String extends LispObject {
-        public java.lang.String value;
+        private java.lang.String value;
 
         public String(java.lang.String value) {
             this.value = value;
@@ -96,10 +113,15 @@ public abstract class LispObject {
         public java.lang.String toString() {
             return "\"" + value + "\"";
         }
+
+        @Override
+        public java.lang.String getValue() {
+            return value;
+        }
     }
 
     public static class Boolean extends LispObject {
-        public boolean value;
+        private boolean value;
 
         public Boolean(boolean value) {
             this.value = value;
@@ -112,10 +134,15 @@ public abstract class LispObject {
             else
                 return "#f";
         }
+
+        @Override
+        public java.lang.Boolean getValue() {
+            return value;
+        }
     }
 
     public static class List extends LispObject {
-        public java.util.List<LispObject> elements;
+        private java.util.List<LispObject> elements;
 
 
         public List(java.util.List<LispObject> elements) {
@@ -151,6 +178,12 @@ public abstract class LispObject {
             res.append(")");
             return res.toString();
         }
+
+        // TODO: convert fully
+        @Override
+        public java.util.List<LispObject> getValue() {
+            return elements;
+        }
     }
 
     public static class Void extends LispObject {
@@ -161,6 +194,11 @@ public abstract class LispObject {
         @Override
         public java.lang.String toString() {
             return "";
+        }
+
+        @Override
+        public Object getValue() {
+            return null;
         }
     }
 
@@ -185,6 +223,11 @@ public abstract class LispObject {
             else
                 return "#<procedure:" + name + ">";
         }
+
+        @Override
+        public Object getValue() {
+            return null;
+        }
     }
 
     public static class JavaFunction extends LispObject {
@@ -199,16 +242,26 @@ public abstract class LispObject {
             this.name = name;
             this.iface = iface;
         }
+
+        @Override
+        public Object getValue() {
+            return null;
+        }
     }
 
     /**
      * Opaque (to Tealisp) Java object meant to be passed to and from Java functions
      */
-    public static class JavaObject extends LispObject {
-        public Object value;
+    public static class JavaObject<T> extends LispObject {
+        private T value;
 
-        public JavaObject(Object value) {
+        public JavaObject(T value) {
             this.value = value;
+        }
+
+        @Override
+        public T getValue() {
+            return value;
         }
     }
 }

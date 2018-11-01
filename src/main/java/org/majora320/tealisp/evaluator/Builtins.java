@@ -82,11 +82,11 @@ public class Builtins extends JavaInterface {
                 checkParams("cons", params, new Class[]{LispObject.class, LispObject.List.class}, false);
                 List<LispObject> res = new ArrayList<>();
                 res.add(params[0]);
-                res.addAll(((LispObject.List) params[1]).elements);
+                res.addAll(((LispObject.List) params[1]).getValue());
                 return new LispObject.List(res);
             case "not":
                 checkParams("not", params, new Class[]{LispObject.Boolean.class}, false);
-                return new LispObject.Boolean(!((LispObject.Boolean) params[0]).value);
+                return new LispObject.Boolean(!((LispObject.Boolean) params[0]).getValue());
             case "void":
                 checkParams("void", params, new Class[]{}, false);
                 return new LispObject.Void();
@@ -106,10 +106,10 @@ public class Builtins extends JavaInterface {
         double doubleRes = 0;
 
         if (init instanceof LispObject.Integer) {
-            intRes = ((LispObject.Integer) init).value;
+            intRes = ((LispObject.Integer) init).getValue();
             isDouble = false;
         } else if (init instanceof LispObject.Double) {
-            doubleRes = ((LispObject.Double) init).value;
+            doubleRes = ((LispObject.Double) init).getValue();
             isDouble = true;
         }
 
@@ -117,15 +117,15 @@ public class Builtins extends JavaInterface {
         for (LispObject param : params) {
             if (param instanceof LispObject.Integer) {
                 if (isDouble)
-                    doubleRes = doubleFn.apply(doubleRes, (double) ((LispObject.Integer) param).value);
+                    doubleRes = doubleFn.apply(doubleRes, (double) ((LispObject.Integer) param).getValue());
                 else
-                    intRes = intFn.apply(intRes, ((LispObject.Integer) param).value);
+                    intRes = intFn.apply(intRes, ((LispObject.Integer) param).getValue());
             } else {
                 if (!isDouble) {
                     isDouble = true;
                     doubleRes = intRes;
                 }
-                doubleRes = doubleFn.apply(doubleRes, ((LispObject.Double) param).value);
+                doubleRes = doubleFn.apply(doubleRes, ((LispObject.Double) param).getValue());
             }
         }
 
@@ -145,13 +145,13 @@ public class Builtins extends JavaInterface {
         // Delicious Spaghetti
         for (int i = 0; i < params.length - 1; ++i) {
             if (params[i] instanceof LispObject.Integer && params[i + 1] instanceof LispObject.Integer) {
-                res = intFn.apply(((LispObject.Integer) params[i]).value, ((LispObject.Integer) params[i + 1]).value);
+                res = intFn.apply(((LispObject.Integer) params[i]).getValue(), ((LispObject.Integer) params[i + 1]).getValue());
             } else if (params[i] instanceof LispObject.Integer && params[i + 1] instanceof LispObject.Double) {
-                res = doubleFn.apply((double) ((LispObject.Integer) params[i]).value, ((LispObject.Double) params[i + 1]).value);
+                res = doubleFn.apply((double) ((LispObject.Integer) params[i]).getValue(), ((LispObject.Double) params[i + 1]).getValue());
             } else if (params[i] instanceof LispObject.Double && params[i + 1] instanceof LispObject.Integer) {
-                res = doubleFn.apply(((LispObject.Double) params[i]).value, (double) ((LispObject.Integer) params[i + 1]).value);
+                res = doubleFn.apply(((LispObject.Double) params[i]).getValue(), (double) ((LispObject.Integer) params[i + 1]).getValue());
             } else if (params[i] instanceof LispObject.Double && params[i + 1] instanceof LispObject.Double) {
-                res = doubleFn.apply(((LispObject.Double) params[i]).value, ((LispObject.Double) params[i + 1]).value);
+                res = doubleFn.apply(((LispObject.Double) params[i]).getValue(), ((LispObject.Double) params[i + 1]).getValue());
             }
 
             if (!res)

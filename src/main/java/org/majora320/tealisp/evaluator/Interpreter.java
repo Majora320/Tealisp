@@ -313,7 +313,7 @@ public class Interpreter {
 
                 LispObject ifCondition = eval(contents.get(0), frame);
 
-                if ((ifCondition instanceof LispObject.Boolean) && ((LispObject.Boolean) ifCondition).value == false)
+                if ((ifCondition instanceof LispObject.Boolean) && ((LispObject.Boolean) ifCondition).getValue() == false)
                     return eval(contents.get(2), frame);
                 else
                     return eval(contents.get(1), frame);
@@ -324,7 +324,7 @@ public class Interpreter {
 
                 LispObject condition = eval(contents.get(0), frame);
 
-                if (condition instanceof LispObject.Boolean && ((LispObject.Boolean) condition).value == false) {
+                if (condition instanceof LispObject.Boolean && ((LispObject.Boolean) condition).getValue() == false) {
                     if (special.equals("when"))
                         return new LispObject.Void();
                     else
@@ -366,7 +366,7 @@ public class Interpreter {
 
                     LispObject condCondition = eval(clause.get(0), frame);
                     if (!(condCondition instanceof LispObject.Boolean
-                            && !((LispObject.Boolean) condCondition).value)) {
+                            && !((LispObject.Boolean) condCondition).getValue())) {
                         result = condCondition;
 
                         for (int j = 1; j < clause.size(); j++) {
@@ -382,7 +382,7 @@ public class Interpreter {
                 LispObject andRes = new LispObject.Boolean(true);
                 for (AstNode node : contents) {
                     andRes = eval(node, frame);
-                    if (andRes instanceof LispObject.Boolean && !((LispObject.Boolean) andRes).value)
+                    if (andRes instanceof LispObject.Boolean && !((LispObject.Boolean) andRes).getValue())
                         return andRes;
                 }
 
@@ -390,7 +390,7 @@ public class Interpreter {
             case "or":
                 for (AstNode node : contents) {
                     LispObject orRes = eval(node, frame);
-                    if (orRes instanceof LispObject.Boolean && !((LispObject.Boolean) orRes).value)
+                    if (orRes instanceof LispObject.Boolean && !((LispObject.Boolean) orRes).getValue())
                         continue;
 
                     return orRes;
