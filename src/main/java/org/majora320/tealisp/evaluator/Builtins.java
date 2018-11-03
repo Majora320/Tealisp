@@ -18,6 +18,8 @@ public class Builtins extends JavaInterface {
             case "=":
             case ">=":
             case "<=":
+            case "symbol=?":
+            case "string=?":
             case "cons":
             case "not":
             case "void":
@@ -78,6 +80,20 @@ public class Builtins extends JavaInterface {
             case "<=":
                 checkParams("<=", params, new Class[]{LispObject.Number.class, LispObject.Number.class}, true);
                 return mapReduceCompare(params, (a, b) -> a <= b, (a, b) -> a <= b);
+            case "symbol=?":
+                checkParams("symbol=?", params, new Class[]{LispObject.Symbol.class, LispObject.Symbol.class}, false);
+                return new LispObject.Boolean(((LispObject.Symbol)params[0]).getValue().equals(((LispObject.Symbol)params[1]).getValue()));
+            case "string=?":
+                checkParams("string=?", params, new Class[]{LispObject.String.class, LispObject.String.class}, true);
+                boolean allEqual = true;
+                String base = ((LispObject.String)params[0]).getValue();
+
+                for (int i = 1; i < params.length; ++i) {
+                    if (!((LispObject.String) params[i]).getValue().equals(base))
+                        allEqual = false;
+                }
+
+                return new LispObject.Boolean(allEqual);
             case "cons":
                 checkParams("cons", params, new Class[]{LispObject.class, LispObject.List.class}, false);
                 List<LispObject> res = new ArrayList<>();
