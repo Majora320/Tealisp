@@ -81,11 +81,12 @@ public class TokenStream implements Closeable {
 
         }
 
-        if (in >= '0' && in <= '9' || in == '-') {
+        if (in >= '0' && in <= '9' || in == '-' || in == '.') {
             int nextIn = input.read();
 
-            if (!(in == '-') || (nextIn >= '0' && nextIn <= '9')) {
-                input.unread(nextIn);
+            if (in != '-') {
+                if (nextIn != -1)
+                    input.unread(nextIn);
                 return parseNumber((char) in);
             }
 
@@ -131,7 +132,8 @@ public class TokenStream implements Closeable {
             throw new LexException("Expected space between integer and name.");
         }
 
-        input.unread(in);
+        if (in != -1)
+            input.unread(in);
 
         if (negative) {
             res *= -1;
