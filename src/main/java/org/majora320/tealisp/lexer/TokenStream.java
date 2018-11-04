@@ -13,15 +13,15 @@ public class TokenStream implements Closeable {
     // The first { creates an anonymous class subclassing from HashSet
     // And the second { creates a static initialization block within that class
     private Set<Character> allowedNamePunctuation = new HashSet<Character>() {{
-       add('-');
-       add('+');
-       add('*');
-       add('/');
-       add('=');
-       add('>');
-       add('<');
-       add('?');
-       add('!');
+        add('-');
+        add('+');
+        add('*');
+        add('/');
+        add('=');
+        add('>');
+        add('<');
+        add('?');
+        add('!');
     }};
 
     private PushbackReader input;
@@ -128,7 +128,7 @@ public class TokenStream implements Closeable {
             }
         }
 
-        if (Character.isLetterOrDigit(in) || allowedNamePunctuation.contains((char)in)) {
+        if (Character.isLetterOrDigit(in) || allowedNamePunctuation.contains((char) in)) {
             throw new LexException("Expected space between integer and name.");
         }
 
@@ -150,7 +150,7 @@ public class TokenStream implements Closeable {
         StringBuilder res = new StringBuilder();
 
         int in = firstChar;
-        while (in != -1 && (Character.isLetterOrDigit(in) || allowedNamePunctuation.contains((char)in))) {
+        while (in != -1 && (Character.isLetterOrDigit(in) || allowedNamePunctuation.contains((char) in))) {
             res.append((char) in);
             in = input.read();
         }

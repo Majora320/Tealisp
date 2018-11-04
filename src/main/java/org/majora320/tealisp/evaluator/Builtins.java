@@ -86,11 +86,11 @@ public class Builtins extends JavaInterface {
                 return mapReduceCompare(params, (a, b) -> a <= b, (a, b) -> a <= b);
             case "symbol=?":
                 checkParams("symbol=?", params, new Class[]{LispObject.Symbol.class, LispObject.Symbol.class}, false);
-                return new LispObject.Boolean(((LispObject.Symbol)params[0]).getValue().equals(((LispObject.Symbol)params[1]).getValue()));
+                return new LispObject.Boolean(((LispObject.Symbol) params[0]).getValue().equals(((LispObject.Symbol) params[1]).getValue()));
             case "string=?":
                 checkParams("string=?", params, new Class[]{LispObject.String.class, LispObject.String.class}, true);
                 boolean allEqual = true;
-                String base = ((LispObject.String)params[0]).getValue();
+                String base = ((LispObject.String) params[0]).getValue();
 
                 for (int i = 1; i < params.length; ++i) {
                     if (!((LispObject.String) params[i]).getValue().equals(base))
@@ -106,17 +106,17 @@ public class Builtins extends JavaInterface {
                 return new LispObject.List(res);
             case "car":
                 checkParams("car", params, new Class[]{LispObject.List.class}, false);
-                return ((LispObject.List)params[0]).getValue().get(0);
+                return ((LispObject.List) params[0]).getValue().get(0);
             case "cdr":
                 checkParams("car", params, new Class[]{LispObject.List.class}, false);
-                List<LispObject> list = ((LispObject.List)params[0]).getValue();
+                List<LispObject> list = ((LispObject.List) params[0]).getValue();
                 return new LispObject.List(list.subList(1, list.size()));
             case "list":
                 checkParams("list", params, new Class[]{LispObject.class}, true);
                 return new LispObject.List(Arrays.asList(params));
             case "empty?":
                 checkParams("empty?", params, new Class[]{LispObject.List.class}, false);
-                return new LispObject.Boolean(((LispObject.List)params[0]).getValue().isEmpty());
+                return new LispObject.Boolean(((LispObject.List) params[0]).getValue().isEmpty());
             case "not":
                 checkParams("not", params, new Class[]{LispObject.Boolean.class}, false);
                 return new LispObject.Boolean(!((LispObject.Boolean) params[0]).getValue());

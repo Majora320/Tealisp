@@ -2,12 +2,9 @@ package org.majora320.tealisp.evaluator;
 
 import org.majora320.tealisp.parser.AstNode;
 
-import java.lang.reflect.Field;
 import java.util.stream.Collectors;
 
 public abstract class LispObject {
-    public abstract Object getValue();
-
     public static LispObject fromJavaObject(Object obj) throws ClassNotFoundException {
         if (obj instanceof java.lang.Integer) {
             return new Integer((java.lang.Integer) obj);
@@ -47,6 +44,8 @@ public abstract class LispObject {
 
         throw new ClassNotFoundException("Matching Tealisp type not found for class " + obj.getClass());
     }
+
+    public abstract Object getValue();
 
     public static abstract class Number extends LispObject {
 

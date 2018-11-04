@@ -4,7 +4,6 @@ import org.majora320.tealisp.lexer.LexException;
 import org.majora320.tealisp.lexer.Token;
 import org.majora320.tealisp.lexer.TokenStream;
 
-import java.io.Closeable;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.ArrayList;

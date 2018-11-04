@@ -14,6 +14,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class Interpreter {
+    protected StackFrame globalFrame = new StackFrame();
     // Weird syntax to add stuff to a container inline
     // The first { creates an anonymous class subclassing from HashSet
     // And the second { creates a static initialization block within that class
@@ -33,14 +34,7 @@ public class Interpreter {
         add("unquote");
         add("quasiquote");
     }};
-
-    protected StackFrame globalFrame = new StackFrame();
     private Runtime runtime;
-
-    public Runtime getRuntime() {
-        return runtime;
-    }
-
     private LispObject globalResult;
 
     public Interpreter(Reader reader) throws LispException, ParseException, LexException, IOException {
@@ -60,6 +54,10 @@ public class Interpreter {
 
         for (AstNode child : program.children)
             globalResult = eval(child, globalFrame);
+    }
+
+    public Runtime getRuntime() {
+        return runtime;
     }
 
     public LispObject getGlobalResult() {

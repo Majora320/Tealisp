@@ -10,10 +10,6 @@ public class JavaRegistry {
     private static JavaRegistry globalRegistry = new JavaRegistry(true);
     private Set<JavaInterface> interfaces = new HashSet<>();
 
-    public static JavaRegistry getGlobalRegistry() {
-        return globalRegistry;
-    }
-
     public JavaRegistry() {
         this(true);
     }
@@ -25,8 +21,13 @@ public class JavaRegistry {
         if (includeStdLib)
             registerInterface(new Builtins());
     }
+
     public JavaRegistry(JavaRegistry other) {
         interfaces = new HashSet<>(other.interfaces);
+    }
+
+    public static JavaRegistry getGlobalRegistry() {
+        return globalRegistry;
     }
 
     public LispObject.JavaFunction lookupFunction(String name) {
