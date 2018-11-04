@@ -319,21 +319,32 @@ public class Interpreter {
                     return eval(contents.get(1), frame);
             case "when":
             case "unless":
-                if (contents.size() != 2)
-                    throw new LispException((special.equals("when") ? "When" : "Unless") + " expression must have exactly 2 arguments");
+                if (contents.size() < 2)
+                    throw new LispException((special.equals("when") ? "When" : "Unless") + " expression must have two or more arguments");
+
+                newFrame = new StackFrame(frame);
 
                 LispObject condition = eval(contents.get(0), frame);
 
                 if (condition instanceof LispObject.Boolean && ((LispObject.Boolean) condition).getValue() == false) {
-                    if (special.equals("when"))
+                    if (special.equals("when")) {
                         return new LispObject.Void();
-                    else
-                        return eval(contents.get(1), frame);
+                    } else {
+                        res = null; // must always be one statement, so this can never return null
+
+                        for (int i = 1; i < contents.size(); ++i)
+                            res = eval(contents.get(i), newFrame);
+                        return res;
+                    }
                 } else {
-                    if (special.equals("when"))
-                        return eval(contents.get(1), frame);
-                    else
+                    if (special.equals("when")) {
+                        res = null; // must always be one statement, so this can never return null
+                        for (int i = 1; i < contents.size(); ++i)
+                            res = eval(contents.get(i), newFrame);
+                        return res;
+                    } else {
                         return new LispObject.Void();
+                    }
                 }
             case "cond":
                 LispObject result = new LispObject.Void();

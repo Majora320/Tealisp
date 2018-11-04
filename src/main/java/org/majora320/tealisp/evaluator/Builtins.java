@@ -20,7 +20,11 @@ public class Builtins extends JavaInterface {
             case "<=":
             case "symbol=?":
             case "string=?":
+            case "empty?":
             case "cons":
+            case "car":
+            case "cdr":
+            case "list":
             case "not":
             case "void":
                 return true;
@@ -100,6 +104,19 @@ public class Builtins extends JavaInterface {
                 res.add(params[0]);
                 res.addAll(((LispObject.List) params[1]).getValue());
                 return new LispObject.List(res);
+            case "car":
+                checkParams("car", params, new Class[]{LispObject.List.class}, false);
+                return ((LispObject.List)params[0]).getValue().get(0);
+            case "cdr":
+                checkParams("car", params, new Class[]{LispObject.List.class}, false);
+                List<LispObject> list = ((LispObject.List)params[0]).getValue();
+                return new LispObject.List(list.subList(1, list.size()));
+            case "list":
+                checkParams("list", params, new Class[]{LispObject.class}, true);
+                return new LispObject.List(Arrays.asList(params));
+            case "empty?":
+                checkParams("empty?", params, new Class[]{LispObject.List.class}, false);
+                return new LispObject.Boolean(((LispObject.List)params[0]).getValue().isEmpty());
             case "not":
                 checkParams("not", params, new Class[]{LispObject.Boolean.class}, false);
                 return new LispObject.Boolean(!((LispObject.Boolean) params[0]).getValue());

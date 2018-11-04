@@ -43,4 +43,9 @@ public class StackFrame {
         else
             parent.modifyBinding(name, value);
     }
+
+    @Override
+    public String toString() {
+        return bindings.toString() + "\nParent: " + parent;
+    }
 }
