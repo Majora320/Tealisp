@@ -2,6 +2,7 @@ package org.majora320.tealisp.evaluator;
 
 import org.majora320.tealisp.parser.AstNode;
 
+import java.lang.reflect.Field;
 import java.util.stream.Collectors;
 
 public abstract class LispObject {
@@ -39,6 +40,9 @@ public abstract class LispObject {
             }
 
             return new List(converted);
+        } else if (obj.getClass().isEnum()) {
+            // should work
+            return new Symbol(obj.toString());
         }
 
         throw new ClassNotFoundException("Matching Tealisp type not found for class " + obj.getClass());
