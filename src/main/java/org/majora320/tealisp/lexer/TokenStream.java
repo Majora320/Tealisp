@@ -81,13 +81,14 @@ public class TokenStream implements Closeable {
 
         }
 
-        if (in >= '0' && in <= '9' || in == '-' || in == '.') {
+        if (Character.isDigit(in) || in == '-' || in == '.') {
             int nextIn = input.read();
 
-            if (in != '-') {
+            if (nextIn != '-') {
                 if (nextIn != -1)
                     input.unread(nextIn);
-                return parseNumber((char) in);
+
+                return parseNumber(in == '-' ? (char) input.read() : (char) in, in == '-');
             }
 
             input.unread(nextIn);
@@ -96,23 +97,19 @@ public class TokenStream implements Closeable {
         return parseName((char) in);
     }
 
-    private Token parseNumber(char firstChar) throws IOException, LexException {
-        boolean negative = false;
+    private Token parseNumber(char firstChar, boolean negative) throws IOException, LexException {
+        boolean hasReadActualNumber = false;
         boolean integer = true;
         int res = 0;
         double doubleRes = 0;
 
         int in = firstChar;
 
-        if (firstChar == '-') {
-            negative = true;
-            in = input.read();
-        }
-
         while (in != -1 && Character.isDigit(in)) {
             res *= 10;
             res += Character.getNumericValue(in);
             in = input.read();
+            hasReadActualNumber = true;
         }
 
         if (in == '.') {
@@ -125,6 +122,7 @@ public class TokenStream implements Closeable {
                 doubleRes += mul * Character.getNumericValue(in);
                 mul *= 0.1;
                 in = input.read();
+                hasReadActualNumber = true;
             }
         }
 
@@ -139,6 +137,9 @@ public class TokenStream implements Closeable {
             res *= -1;
             doubleRes *= -1;
         }
+
+        if (!hasReadActualNumber)
+            throw new LexException("A dot is not an integer");
 
         if (integer)
             return new Token.Integer(res);
