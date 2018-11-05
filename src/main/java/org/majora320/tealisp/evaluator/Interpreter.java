@@ -431,9 +431,6 @@ public class Interpreter {
 
                 AstNode content = contents.get(0);
 
-                if (!(content instanceof AstNode.Name) && !(content instanceof AstNode.Sexp))
-                    throw new LispException("Quote not followed by a symbol or list");
-
                 if (content instanceof AstNode.Name) {
                     return new LispObject.Symbol(((AstNode.Name) content).value);
                 } else if (content instanceof AstNode.Sexp) {
@@ -443,6 +440,8 @@ public class Interpreter {
                         processedContents.add(processQuotedObj(node));
 
                     return new LispObject.List(processedContents);
+                } else {
+                    return eval(content, new StackFrame(frame));
                 }
         }
 
