@@ -37,6 +37,14 @@ public class Interpreter {
     private Runtime runtime;
     private LispObject globalResult;
 
+    public Interpreter() {
+        this(JavaRegistry.getGlobalRegistry());
+    }
+
+    public Interpreter(JavaRegistry registry) {
+        runtime = new Runtime(this, registry);
+    }
+
     public Interpreter(Reader reader) throws LispException, ParseException, LexException, IOException {
         this(Parser.parse(reader));
     }
@@ -50,10 +58,8 @@ public class Interpreter {
     }
 
     public Interpreter(AstNode.RootNode program, JavaRegistry registry) throws LispException {
-        runtime = new Runtime(this, registry);
-
-        for (AstNode child : program.children)
-            globalResult = eval(child, globalFrame);
+        this(registry);
+        run(program);
     }
 
     public Runtime getRuntime() {
@@ -67,6 +73,18 @@ public class Interpreter {
     public StackFrame getGlobalFrame() {
         return globalFrame;
     }
+
+    public LispObject run(Reader reader) throws ParseException, LexException, IOException, LispException {
+        return run(Parser.parse(reader));
+    }
+
+    public LispObject run(AstNode.RootNode program) throws LispException {
+        for (AstNode child : program.children)
+            globalResult = eval(child, globalFrame);
+
+        return globalResult;
+    }
+
 
     public LispObject eval(AstNode node, StackFrame frame) throws LispException {
         if (node instanceof AstNode.RootNode) {

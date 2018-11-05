@@ -1,0 +1,27 @@
+plugins {
+    id 'java'
+}
+
+group 'org.majora320.tealisp.repl'
+version '1.0-SNAPSHOT'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile 'org.jline:jline:3.9.0'
+    compile rootProject
+}
+
+jar {
+    manifest {
+        attributes 'Main-Class': 'org.majora320.tealisp.repl.Repl'
+    }
+
+    from {
+        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+}
