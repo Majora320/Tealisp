@@ -36,7 +36,7 @@ class TestLexer {
     }
 
     @Test
-    void testInvalidIntegerParsings() {
+    void testIntegerParsings() throws IOException, LexException {
         Assertions.assertThrows(LexException.class, () -> assertLexEquals(".", new Token[]{}));
         Assertions.assertThrows(LexException.class, () -> assertLexEquals("..", new Token[]{}));
         Assertions.assertThrows(LexException.class, () -> assertLexEquals("..5", new Token[]{}));
@@ -45,6 +45,9 @@ class TestLexer {
         Assertions.assertThrows(LexException.class, () -> assertLexEquals("-.5.", new Token[]{new Token.Double(-.5)}));
         Assertions.assertThrows(LexException.class, () -> assertLexEquals("-..5", new Token[]{}));
         Assertions.assertThrows(LexException.class, () -> assertLexEquals("-", new Token[]{}));
+
+        assertLexEquals("- 5", new Token[]{new Token.Name("-"), new Token.Integer(5)});
+        assertLexEquals("- .5", new Token[]{new Token.Name("-"), new Token.Double(.5)});
     }
 
     @Test

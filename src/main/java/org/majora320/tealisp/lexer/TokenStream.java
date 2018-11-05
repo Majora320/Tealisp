@@ -84,7 +84,7 @@ public class TokenStream implements Closeable {
         if (Character.isDigit(in) || in == '-' || in == '.') {
             int nextIn = input.read();
 
-            if (nextIn != '-') {
+            if (nextIn != '-' && nextIn != ' ') {
                 if (nextIn != -1)
                     input.unread(nextIn);
 
