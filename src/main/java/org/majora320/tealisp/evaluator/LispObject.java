@@ -5,6 +5,7 @@ import org.majora320.tealisp.parser.AstNode;
 import java.util.stream.Collectors;
 
 public abstract class LispObject {
+    @SuppressWarnings("unchecked")
     public static LispObject fromJavaObject(Object obj) throws ClassNotFoundException {
         if (obj instanceof java.lang.Integer) {
             return new Integer((java.lang.Integer) obj);
@@ -96,7 +97,11 @@ public abstract class LispObject {
 
         @Override
         public java.lang.String toString() {
-            return "'" + value;
+            return "'" + realToString();
+        }
+
+        protected java.lang.String realToString() {
+            return value;
         }
 
         @Override
@@ -147,7 +152,6 @@ public abstract class LispObject {
     public static class List extends LispObject {
         private java.util.List<LispObject> elements;
 
-
         public List(java.util.List<LispObject> elements) {
             this.elements = elements;
         }
@@ -173,6 +177,8 @@ public abstract class LispObject {
 
                 if (obj instanceof List) {
                     res.append(((List) obj).realToString());
+                } else if (obj instanceof Symbol) {
+                    res.append(((Symbol) obj).realToString());
                 } else {
                     res.append(obj.toString());
                 }

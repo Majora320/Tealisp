@@ -155,9 +155,9 @@ class SpecialForms {
         if (contents.size() != 3)
             throw new LispException("If expression must have exactly 3 arguments");
 
-        LispObject ifCondition = interpreter.eval(contents.get(0), new StackFrame(frame));
+        LispObject condition = interpreter.eval(contents.get(0), new StackFrame(frame));
 
-        if ((ifCondition instanceof LispObject.Boolean) && !((LispObject.Boolean) ifCondition).getValue())
+        if ((condition instanceof LispObject.Boolean) && !((LispObject.Boolean) condition).getValue())
             return interpreter.eval(contents.get(2), new StackFrame(frame));
         else
             return interpreter.eval(contents.get(1), new StackFrame(frame));
@@ -268,12 +268,7 @@ class SpecialForms {
         if (content instanceof AstNode.Name) {
             return new LispObject.Symbol(((AstNode.Name) content).value);
         } else if (content instanceof AstNode.Sexp) {
-            List<LispObject> processedContents = new ArrayList<>();
-
-            for (AstNode node : ((AstNode.Sexp) content).contents)
-                processedContents.add(interpreter.processQuotedObj(node));
-
-            return new LispObject.List(processedContents);
+            return interpreter.processQuotedObj(content);
         } else {
             return interpreter.eval(content, new StackFrame(frame));
         }

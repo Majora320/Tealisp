@@ -78,10 +78,17 @@ public class Interpreter {
     }
 
     public LispObject run(AstNode.RootNode program) throws LispException {
-        for (AstNode child : program.children)
-            globalResult = eval(child, globalFrame);
+        boolean didLoopOnce = false;
 
-        return globalResult;
+        for (AstNode child : program.children) {
+            globalResult = eval(child, globalFrame);
+            didLoopOnce = true;
+        }
+
+        if (didLoopOnce)
+            return globalResult;
+        else
+            return new LispObject.Void();
     }
 
 

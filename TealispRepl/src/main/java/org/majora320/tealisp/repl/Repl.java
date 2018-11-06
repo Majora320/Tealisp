@@ -18,7 +18,7 @@ class Repl {
 
         LineReader reader = LineReaderBuilder.builder().build();
         while (true) {
-            String line = null;
+            String line;
 
             try {
                 line = reader.readLine("> ");
