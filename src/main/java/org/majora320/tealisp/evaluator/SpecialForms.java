@@ -2,7 +2,6 @@ package org.majora320.tealisp.evaluator;
 
 import org.majora320.tealisp.parser.AstNode;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 

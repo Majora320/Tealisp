@@ -82,7 +82,7 @@ parameter. Some examples:
 
 ```java
 LispObject[] params = new LispObject[] { new LispObject.Integer(0) };
-checkParams("function1, params, new Class[] { LispObject.Integer.class }, true); // Checks out
+checkParams("function1", params, new Class[] { LispObject.Integer.class }, true); // Checks out
 
 LispObject[] params = new LispObject[] { new LispObject.Integer(0), new LispObject.Integer(2), new LispObject.Integer(3) };
 checkParams("function2", params, new Class[] { LispObject.Integer.class,  }, true); // Also checks out
