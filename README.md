@@ -108,8 +108,3 @@ To execute a Lisp function from Java, you need a Runtime instance.
 You can get one from an Interpreter using the getRuntime() method.
 Once you have your runtime, simply pass your desired function name
 and parameters to callFunction.
-
-## Programming in Tealisp
-### The standard library
-TODO: Write documentation about the language. What functions are
-available, etc.
